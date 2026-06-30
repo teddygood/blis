@@ -1009,6 +1009,9 @@ typedef enum arch_e
 	// SiFive
 	BLIS_ARCH_SIFIVE_X280,
 
+	// WebAssembly
+	BLIS_ARCH_WASM32,
+
 	// Generic architecture/configuration
 	BLIS_ARCH_GENERIC,
 

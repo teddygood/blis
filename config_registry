@@ -66,3 +66,4 @@ sifive_x280: sifive_x280
 
 # Generic architectures.
 generic:     generic
+wasm32:      wasm32/generic

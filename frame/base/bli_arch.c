@@ -319,6 +319,11 @@ arch_t bli_arch_query_id_impl( void )
 		id = BLIS_ARCH_SIFIVE_X280;
 		#endif
 
+		// WebAssembly.
+		#ifdef BLIS_FAMILY_WASM32
+		id = BLIS_ARCH_WASM32;
+		#endif
+
 		// Generic microarchitecture.
 		#ifdef BLIS_FAMILY_GENERIC
 		id = BLIS_ARCH_GENERIC;
@@ -385,6 +390,8 @@ static const char* config_name[ BLIS_NUM_ARCHS ] =
     "rv64iv",
 
     "sifive_x280",
+
+    "wasm32",
 
     "generic"
 };

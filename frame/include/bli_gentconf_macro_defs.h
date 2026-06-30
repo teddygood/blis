@@ -236,6 +236,14 @@
 #define INSERT_GENTCONF_GENERIC
 #endif
 
+// -- WebAssembly architectures ------------------------------------------------
+
+#ifdef BLIS_CONFIG_WASM32
+#define INSERT_GENTCONF_WASM32 GENTCONF( WASM32, wasm32 )
+#else
+#define INSERT_GENTCONF_WASM32
+#endif
+
 
 // -- configuration-specific macro --
 
@@ -282,7 +290,9 @@ INSERT_GENTCONF_RV64IV \
 \
 INSERT_GENTCONF_SIFIVE_X280 \
 \
-INSERT_GENTCONF_GENERIC
+INSERT_GENTCONF_GENERIC \
+\
+INSERT_GENTCONF_WASM32
 
 
 #endif
