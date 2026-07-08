@@ -41,7 +41,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(c,hpmv)(const bla_character *uplo, const bla_integer *n, const bla_scomplex *alpha, const bla_scomplex * ap, const bla_scomplex *x, const bla_integer *incx, const bla_scomplex *beta, bla_scomplex *y, const bla_integer *incy)
+/* Subroutine */ void PASTEF77(c,hpmv)(const bla_character *uplo, const bla_integer *n, const bla_scomplex *alpha, const bla_scomplex * ap, const bla_scomplex *x, const bla_integer *incx, const bla_scomplex *beta, bla_scomplex *y, const bla_integer *incy)
 {
     /* System generated locals */
     bla_integer i__1, i__2, i__3, i__4, i__5;
@@ -57,7 +57,7 @@
     bla_integer i__, j, k;
     //extern bla_logical PASTEF77(lsame)(bla_character *, bla_character *, ftnlen, ftnlen);
     bla_integer kk, ix, iy, jx, jy, kx, ky;
-    //extern /* Subroutine */ int PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
+    //extern /* Subroutine */ void PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
 
 /*     .. Scalar Arguments .. */
 /*     .. Array Arguments .. */
@@ -168,8 +168,7 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(uplo, "L", (
-	    ftnlen)1, (ftnlen)1)) {
+    if (! PASTEF77(lsame)(uplo, "U") && ! PASTEF77(lsame)(uplo, "L")) {
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
@@ -180,14 +179,14 @@
     }
     if (info != 0) {
 	PASTEF77(xerbla)("CHPMV ", &info, (ftnlen)6);
-	return 0;
+	return;
     }
 
 /*     Quick return if possible. */
 
     if (*n == 0 || (bli_creal(*alpha) == 0.f && bli_cimag(*alpha) == 0.f && (bli_creal(*beta) == 1.f &&
 	    bli_cimag(*beta) == 0.f))) {
-	return 0;
+	return;
     }
 
 /*     Set up the start points in  X  and  Y. */
@@ -251,10 +250,10 @@
 	}
     }
     if (bli_creal(*alpha) == 0.f && bli_cimag(*alpha) == 0.f) {
-	return 0;
+	return;
     }
     kk = 1;
-    if (PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(uplo, "U")) {
 
 /*        Form  y  when AP contains the upper triangle. */
 
@@ -428,7 +427,7 @@
 	}
     }
 
-    return 0;
+    return;
 
 /*     End of CHPMV . */
 
@@ -439,7 +438,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(z,hpmv)(const bla_character *uplo, const bla_integer *n, const bla_dcomplex *alpha, const bla_dcomplex *ap, const bla_dcomplex *x, const bla_integer *incx, const bla_dcomplex *beta, bla_dcomplex *y, const bla_integer *incy)
+/* Subroutine */ void PASTEF77(z,hpmv)(const bla_character *uplo, const bla_integer *n, const bla_dcomplex *alpha, const bla_dcomplex *ap, const bla_dcomplex *x, const bla_integer *incx, const bla_dcomplex *beta, bla_dcomplex *y, const bla_integer *incy)
 {
     /* System generated locals */
     bla_integer i__1, i__2, i__3, i__4, i__5;
@@ -455,7 +454,7 @@
     bla_integer i__, j, k;
     //extern bla_logical PASTEF77(lsame)(bla_character *, bla_character *, ftnlen, ftnlen);
     bla_integer kk, ix, iy, jx, jy, kx, ky;
-    //extern /* Subroutine */ int PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
+    //extern /* Subroutine */ void PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
 
 /*     .. Scalar Arguments .. */
 /*     .. Array Arguments .. */
@@ -566,8 +565,7 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(uplo, "L", (
-	    ftnlen)1, (ftnlen)1)) {
+    if (! PASTEF77(lsame)(uplo, "U") && ! PASTEF77(lsame)(uplo, "L")) {
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
@@ -578,14 +576,14 @@
     }
     if (info != 0) {
 	PASTEF77(xerbla)("ZHPMV ", &info, (ftnlen)6);
-	return 0;
+	return;
     }
 
 /*     Quick return if possible. */
 
     if (*n == 0 || (bli_zreal(*alpha) == 0. && bli_zimag(*alpha) == 0. && (bli_zreal(*beta) == 1. &&
 	    bli_zimag(*beta) == 0.))) {
-	return 0;
+	return;
     }
 
 /*     Set up the start points in  X  and  Y. */
@@ -649,10 +647,10 @@
 	}
     }
     if (bli_zreal(*alpha) == 0. && bli_zimag(*alpha) == 0.) {
-	return 0;
+	return;
     }
     kk = 1;
-    if (PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(uplo, "U")) {
 
 /*        Form  y  when AP contains the upper triangle. */
 
@@ -826,7 +824,7 @@
 	}
     }
 
-    return 0;
+    return;
 
 /*     End of ZHPMV . */
 

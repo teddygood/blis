@@ -41,7 +41,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(c,gbmv)(const bla_character *trans, const bla_integer *m, const bla_integer *n, const bla_integer *kl, const bla_integer *ku, const bla_scomplex *alpha, const bla_scomplex *a, const bla_integer *lda, const bla_scomplex *x, const bla_integer *incx, const bla_scomplex *beta, bla_scomplex *y, const bla_integer *incy)
+/* Subroutine */ void PASTEF77(c,gbmv)(const bla_character *trans, const bla_integer *m, const bla_integer *n, const bla_integer *kl, const bla_integer *ku, const bla_scomplex *alpha, const bla_scomplex *a, const bla_integer *lda, const bla_scomplex *x, const bla_integer *incx, const bla_scomplex *beta, bla_scomplex *y, const bla_integer *incy)
 {
     /* System generated locals */
     bla_integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5, i__6;
@@ -56,7 +56,7 @@
     bla_integer lenx, leny, i__, j, k;
     //extern bla_logical PASTEF77(lsame)(bla_character *, bla_character *, ftnlen, ftnlen);
     bla_integer ix, iy, jx, jy, kx, ky;
-    //extern /* Subroutine */ int PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
+    //extern /* Subroutine */ void PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
     bla_logical noconj;
     bla_integer kup1;
 
@@ -203,8 +203,7 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans, "T", (
-	    ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans, "C", (ftnlen)1, (ftnlen)1)
+    if (! PASTEF77(lsame)(trans, "N") && ! PASTEF77(lsame)(trans, "T") && ! PASTEF77(lsame)(trans, "C")
 	    ) {
 	info = 1;
     } else if (*m < 0) {
@@ -224,22 +223,22 @@
     }
     if (info != 0) {
 	PASTEF77(xerbla)("CGBMV ", &info, (ftnlen)6);
-	return 0;
+	return;
     }
 
 /*     Quick return if possible. */
 
     if (*m == 0 || *n == 0 || (bli_creal(*alpha) == 0.f && bli_cimag(*alpha) == 0.f && (bli_creal(*beta)
 	    == 1.f && bli_cimag(*beta) == 0.f))) {
-	return 0;
+	return;
     }
 
-    noconj = PASTEF77(lsame)(trans, "T", (ftnlen)1, (ftnlen)1);
+    noconj = PASTEF77(lsame)(trans, "T");
 
 /*     Set  LENX  and  LENY, the lengths of the vectors x and y, and set */
 /*     up the start points in  X  and  Y. */
 
-    if (PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(trans, "N")) {
 	lenx = *n;
 	leny = *m;
     } else {
@@ -305,10 +304,10 @@
 	}
     }
     if (bli_creal(*alpha) == 0.f && bli_cimag(*alpha) == 0.f) {
-	return 0;
+	return;
     }
     kup1 = *ku + 1;
-    if (PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(trans, "N")) {
 
 /*        Form  y := alpha*A*x + y. */
 
@@ -471,7 +470,7 @@
 	}
     }
 
-    return 0;
+    return;
 
 /*     End of CGBMV . */
 
@@ -482,7 +481,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(d,gbmv)(const bla_character *trans, const bla_integer *m, const bla_integer *n, const bla_integer *kl, const bla_integer *ku, const bla_double *alpha, const bla_double *a, const bla_integer *lda, const bla_double *x, const bla_integer *incx, const bla_double *beta, bla_double *y, const bla_integer *incy)
+/* Subroutine */ void PASTEF77(d,gbmv)(const bla_character *trans, const bla_integer *m, const bla_integer *n, const bla_integer *kl, const bla_integer *ku, const bla_double *alpha, const bla_double *a, const bla_integer *lda, const bla_double *x, const bla_integer *incx, const bla_double *beta, bla_double *y, const bla_integer *incy)
 {
     /* System generated locals */
     bla_integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5, i__6;
@@ -493,7 +492,7 @@
     bla_integer lenx, leny, i__, j, k;
     //extern bla_logical PASTEF77(lsame)(bla_character *, bla_character *, ftnlen, ftnlen);
     bla_integer ix, iy, jx, jy, kx, ky;
-    //extern /* Subroutine */ int PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
+    //extern /* Subroutine */ void PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
     bla_integer kup1;
 
 /*     .. Scalar Arguments .. */
@@ -635,8 +634,7 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans, "T", (
-	    ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans, "C", (ftnlen)1, (ftnlen)1)
+    if (! PASTEF77(lsame)(trans, "N") && ! PASTEF77(lsame)(trans, "T") && ! PASTEF77(lsame)(trans, "C")
 	    ) {
 	info = 1;
     } else if (*m < 0) {
@@ -656,19 +654,19 @@
     }
     if (info != 0) {
 	PASTEF77(xerbla)("DGBMV ", &info, (ftnlen)6);
-	return 0;
+	return;
     }
 
 /*     Quick return if possible. */
 
     if (*m == 0 || *n == 0 || (*alpha == 0. && *beta == 1.)) {
-	return 0;
+	return;
     }
 
 /*     Set  LENX  and  LENY, the lengths of the vectors x and y, and set */
 /*     up the start points in  X  and  Y. */
 
-    if (PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(trans, "N")) {
 	lenx = *n;
 	leny = *m;
     } else {
@@ -726,10 +724,10 @@
 	}
     }
     if (*alpha == 0.) {
-	return 0;
+	return;
     }
     kup1 = *ku + 1;
-    if (PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(trans, "N")) {
 
 /*        Form  y := alpha*A*x + y. */
 
@@ -827,7 +825,7 @@
 	}
     }
 
-    return 0;
+    return;
 
 /*     End of DGBMV . */
 
@@ -838,7 +836,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(s,gbmv)(const bla_character *trans, const bla_integer *m, const bla_integer *n, const bla_integer *kl, const bla_integer *ku, const bla_real *alpha, const bla_real *a, const bla_integer *lda, const bla_real *x, const bla_integer * incx, const bla_real *beta, bla_real *y, const bla_integer *incy)
+/* Subroutine */ void PASTEF77(s,gbmv)(const bla_character *trans, const bla_integer *m, const bla_integer *n, const bla_integer *kl, const bla_integer *ku, const bla_real *alpha, const bla_real *a, const bla_integer *lda, const bla_real *x, const bla_integer * incx, const bla_real *beta, bla_real *y, const bla_integer *incy)
 {
     /* System generated locals */
     bla_integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5, i__6;
@@ -849,7 +847,7 @@
     bla_integer lenx, leny, i__, j, k;
     //extern bla_logical PASTEF77(lsame)(bla_character *, bla_character *, ftnlen, ftnlen);
     bla_integer ix, iy, jx, jy, kx, ky;
-    //extern /* Subroutine */ int PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
+    //extern /* Subroutine */ void PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
     bla_integer kup1;
 
 /*     .. Scalar Arguments .. */
@@ -991,8 +989,7 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans, "T", (
-	    ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans, "C", (ftnlen)1, (ftnlen)1)
+    if (! PASTEF77(lsame)(trans, "N") && ! PASTEF77(lsame)(trans, "T") && ! PASTEF77(lsame)(trans, "C")
 	    ) {
 	info = 1;
     } else if (*m < 0) {
@@ -1012,19 +1009,19 @@
     }
     if (info != 0) {
 	PASTEF77(xerbla)("SGBMV ", &info, (ftnlen)6);
-	return 0;
+	return;
     }
 
 /*     Quick return if possible. */
 
     if (*m == 0 || *n == 0 || (*alpha == 0.f && *beta == 1.f)) {
-	return 0;
+	return;
     }
 
 /*     Set  LENX  and  LENY, the lengths of the vectors x and y, and set */
 /*     up the start points in  X  and  Y. */
 
-    if (PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(trans, "N")) {
 	lenx = *n;
 	leny = *m;
     } else {
@@ -1082,10 +1079,10 @@
 	}
     }
     if (*alpha == 0.f) {
-	return 0;
+	return;
     }
     kup1 = *ku + 1;
-    if (PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(trans, "N")) {
 
 /*        Form  y := alpha*A*x + y. */
 
@@ -1183,7 +1180,7 @@
 	}
     }
 
-    return 0;
+    return;
 
 /*     End of SGBMV . */
 
@@ -1194,7 +1191,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(z,gbmv)(const bla_character *trans, const bla_integer *m, const bla_integer *n, const bla_integer *kl, const bla_integer *ku, const bla_dcomplex *alpha, const bla_dcomplex *a, const bla_integer *lda, const bla_dcomplex *x, const bla_integer *incx, const bla_dcomplex *beta, bla_dcomplex * y, const bla_integer *incy)
+/* Subroutine */ void PASTEF77(z,gbmv)(const bla_character *trans, const bla_integer *m, const bla_integer *n, const bla_integer *kl, const bla_integer *ku, const bla_dcomplex *alpha, const bla_dcomplex *a, const bla_integer *lda, const bla_dcomplex *x, const bla_integer *incx, const bla_dcomplex *beta, bla_dcomplex * y, const bla_integer *incy)
 {
     /* System generated locals */
     bla_integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5, i__6;
@@ -1209,7 +1206,7 @@
     bla_integer lenx, leny, i__, j, k;
     //extern bla_logical PASTEF77(lsame)(bla_character *, bla_character *, ftnlen, ftnlen);
     bla_integer ix, iy, jx, jy, kx, ky;
-    //extern /* Subroutine */ int PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
+    //extern /* Subroutine */ void PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
     bla_logical noconj;
     bla_integer kup1;
 
@@ -1356,8 +1353,7 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans, "T", (
-	    ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans, "C", (ftnlen)1, (ftnlen)1)
+    if (! PASTEF77(lsame)(trans, "N") && ! PASTEF77(lsame)(trans, "T") && ! PASTEF77(lsame)(trans, "C")
 	    ) {
 	info = 1;
     } else if (*m < 0) {
@@ -1377,22 +1373,22 @@
     }
     if (info != 0) {
 	PASTEF77(xerbla)("ZGBMV ", &info, (ftnlen)6);
-	return 0;
+	return;
     }
 
 /*     Quick return if possible. */
 
     if (*m == 0 || *n == 0 || (bli_zreal(*alpha) == 0. && bli_zimag(*alpha) == 0. && (bli_zreal(*beta) ==
 	    1. && bli_zimag(*beta) == 0.))) {
-	return 0;
+	return;
     }
 
-    noconj = PASTEF77(lsame)(trans, "T", (ftnlen)1, (ftnlen)1);
+    noconj = PASTEF77(lsame)(trans, "T");
 
 /*     Set  LENX  and  LENY, the lengths of the vectors x and y, and set */
 /*     up the start points in  X  and  Y. */
 
-    if (PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(trans, "N")) {
 	lenx = *n;
 	leny = *m;
     } else {
@@ -1458,10 +1454,10 @@
 	}
     }
     if (bli_zreal(*alpha) == 0. && bli_zimag(*alpha) == 0.) {
-	return 0;
+	return;
     }
     kup1 = *ku + 1;
-    if (PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(trans, "N")) {
 
 /*        Form  y := alpha*A*x + y. */
 
@@ -1624,7 +1620,7 @@
 	}
     }
 
-    return 0;
+    return;
 
 /*     End of ZGBMV . */
 

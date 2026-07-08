@@ -41,10 +41,10 @@
 	f77_int lower, upper; \
 	f77_int nrowa; \
 \
-	left  = PASTEF77(lsame)( sidea, "L", (ftnlen)1, (ftnlen)1 ); \
-	right = PASTEF77(lsame)( sidea, "R", (ftnlen)1, (ftnlen)1 ); \
-	lower = PASTEF77(lsame)( uploa, "L", (ftnlen)1, (ftnlen)1 ); \
-	upper = PASTEF77(lsame)( uploa, "U", (ftnlen)1, (ftnlen)1 ); \
+	left  = PASTEF77(lsame)( sidea, "L"); \
+	right = PASTEF77(lsame)( sidea, "R"); \
+	lower = PASTEF77(lsame)( uploa, "L"); \
+	upper = PASTEF77(lsame)( uploa, "U"); \
 \
 	if ( left ) { nrowa = *m; } \
 	else        { nrowa = *n; } \

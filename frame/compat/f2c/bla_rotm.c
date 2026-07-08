@@ -41,7 +41,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(s,rotm)(const bla_integer *n, bla_real *sx, const bla_integer *incx, bla_real *sy, const bla_integer *incy, const bla_real *sparam)
+/* Subroutine */ void PASTEF77(s,rotm)(const bla_integer *n, bla_real *sx, const bla_integer *incx, bla_real *sy, const bla_integer *incy, const bla_real *sparam)
 {
     /* Initialized data */
 
@@ -199,7 +199,7 @@ L120:
 /* L130: */
     }
 L140:
-    return 0;
+    return;
 } /* srotm_ */
 
 /* drotm.f -- translated by f2c (version 19991025).
@@ -207,7 +207,7 @@ L140:
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(d,rotm)(const bla_integer *n, bla_double *dx, const bla_integer *incx, bla_double *dy, const bla_integer *incy, const bla_double *dparam)
+/* Subroutine */ void PASTEF77(d,rotm)(const bla_integer *n, bla_double *dx, const bla_integer *incx, bla_double *dy, const bla_integer *incy, const bla_double *dparam)
 {
     /* Initialized data */
 
@@ -365,7 +365,7 @@ L120:
 /* L130: */
     }
 L140:
-    return 0;
+    return;
 } /* drotm_ */
 
 #endif

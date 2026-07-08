@@ -43,12 +43,12 @@
 	f77_int ta,    tb; \
 	f77_int nrowa, nrowb; \
 \
-	nota  = PASTEF77(lsame)( transa, "N", (ftnlen)1, (ftnlen)1 ); \
-	notb  = PASTEF77(lsame)( transb, "N", (ftnlen)1, (ftnlen)1 ); \
-	conja = PASTEF77(lsame)( transa, "C", (ftnlen)1, (ftnlen)1 ); \
-	conjb = PASTEF77(lsame)( transb, "C", (ftnlen)1, (ftnlen)1 ); \
-	ta    = PASTEF77(lsame)( transa, "T", (ftnlen)1, (ftnlen)1 ); \
-	tb    = PASTEF77(lsame)( transb, "T", (ftnlen)1, (ftnlen)1 ); \
+	nota  = PASTEF77(lsame)( transa, "N"); \
+	notb  = PASTEF77(lsame)( transb, "N"); \
+	conja = PASTEF77(lsame)( transa, "C"); \
+	conjb = PASTEF77(lsame)( transb, "C"); \
+	ta    = PASTEF77(lsame)( transa, "T"); \
+	tb    = PASTEF77(lsame)( transb, "T"); \
 \
 	if ( nota ) { nrowa = *m; } \
 	else        { nrowa = *k; } \

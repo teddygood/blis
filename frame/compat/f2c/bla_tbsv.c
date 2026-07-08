@@ -41,7 +41,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(c,tbsv)(const bla_character *uplo, const bla_character *trans, const bla_character *diag, const bla_integer *n, const bla_integer *k, const bla_scomplex *a, const bla_integer *lda, bla_scomplex *x, const bla_integer *incx)
+/* Subroutine */ void PASTEF77(c,tbsv)(const bla_character *uplo, const bla_character *trans, const bla_character *diag, const bla_integer *n, const bla_integer *k, const bla_scomplex *a, const bla_integer *lda, bla_scomplex *x, const bla_integer *incx)
 {
     /* System generated locals */
     bla_integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -56,7 +56,7 @@
     bla_integer i__, j, l;
     //extern bla_logical PASTEF77(lsame)(bla_character *, bla_character *, ftnlen, ftnlen);
     bla_integer kplus1, ix, jx, kx = 0;
-    //extern /* Subroutine */ int PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
+    //extern /* Subroutine */ void PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
     bla_logical noconj, nounit;
 
 /*     .. Scalar Arguments .. */
@@ -213,15 +213,13 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(uplo, "L", (
-	    ftnlen)1, (ftnlen)1)) {
+    if (! PASTEF77(lsame)(uplo, "U") && ! PASTEF77(lsame)(uplo, "L")) {
 	info = 1;
-    } else if (! PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans,
-	    "T", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans, "C", (ftnlen)1, (
-	    ftnlen)1)) {
+    } else if (! PASTEF77(lsame)(trans, "N") && ! PASTEF77(lsame)(trans,
+	    "T") && ! PASTEF77(lsame)(trans, "C")) {
 	info = 2;
-    } else if (! PASTEF77(lsame)(diag, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(diag,
-	    "N", (ftnlen)1, (ftnlen)1)) {
+    } else if (! PASTEF77(lsame)(diag, "U") && ! PASTEF77(lsame)(diag,
+	    "N")) {
 	info = 3;
     } else if (*n < 0) {
 	info = 4;
@@ -234,17 +232,17 @@
     }
     if (info != 0) {
 	PASTEF77(xerbla)("CTBSV ", &info, (ftnlen)6);
-	return 0;
+	return;
     }
 
 /*     Quick return if possible. */
 
     if (*n == 0) {
-	return 0;
+	return;
     }
 
-    noconj = PASTEF77(lsame)(trans, "T", (ftnlen)1, (ftnlen)1);
-    nounit = PASTEF77(lsame)(diag, "N", (ftnlen)1, (ftnlen)1);
+    noconj = PASTEF77(lsame)(trans, "T");
+    nounit = PASTEF77(lsame)(diag, "N");
 
 /*     Set up the start point in X if the increment is not unity. This */
 /*     will be  ( N - 1 )*INCX  too small for descending loops. */
@@ -258,11 +256,11 @@
 /*     Start the operations. In this version the elements of A are */
 /*     accessed by sequentially with one pass through A. */
 
-    if (PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(trans, "N")) {
 
 /*        Form  x := inv( A )*x. */
 
-	if (PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+	if (PASTEF77(lsame)(uplo, "U")) {
 	    kplus1 = *k + 1;
 	    if (*incx == 1) {
 		for (j = *n; j >= 1; --j) {
@@ -393,7 +391,7 @@
 
 /*        Form  x := inv( A' )*x  or  x := inv( conjg( A') )*x. */
 
-	if (PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+	if (PASTEF77(lsame)(uplo, "U")) {
 	    kplus1 = *k + 1;
 	    if (*incx == 1) {
 		i__1 = *n;
@@ -592,7 +590,7 @@
 	}
     }
 
-    return 0;
+    return;
 
 /*     End of CTBSV . */
 
@@ -603,7 +601,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(d,tbsv)(const bla_character *uplo, const bla_character *trans, const bla_character *diag, const bla_integer *n, const bla_integer *k, const bla_double *a, const bla_integer *lda, bla_double *x, const bla_integer *incx)
+/* Subroutine */ void PASTEF77(d,tbsv)(const bla_character *uplo, const bla_character *trans, const bla_character *diag, const bla_integer *n, const bla_integer *k, const bla_double *a, const bla_integer *lda, bla_double *x, const bla_integer *incx)
 {
     /* System generated locals */
     bla_integer a_dim1, a_offset, i__1, i__2, i__3, i__4;
@@ -614,7 +612,7 @@
     bla_integer i__, j, l;
     //extern bla_logical PASTEF77(lsame)(bla_character *, bla_character *, ftnlen, ftnlen);
     bla_integer kplus1, ix, jx, kx = 0;
-    //extern /* Subroutine */ int PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
+    //extern /* Subroutine */ void PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
     bla_logical nounit;
 
 /*     .. Scalar Arguments .. */
@@ -771,15 +769,13 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(uplo, "L", (
-	    ftnlen)1, (ftnlen)1)) {
+    if (! PASTEF77(lsame)(uplo, "U") && ! PASTEF77(lsame)(uplo, "L")) {
 	info = 1;
-    } else if (! PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans,
-	    "T", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans, "C", (ftnlen)1, (
-	    ftnlen)1)) {
+    } else if (! PASTEF77(lsame)(trans, "N") && ! PASTEF77(lsame)(trans,
+	    "T") && ! PASTEF77(lsame)(trans, "C")) {
 	info = 2;
-    } else if (! PASTEF77(lsame)(diag, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(diag,
-	    "N", (ftnlen)1, (ftnlen)1)) {
+    } else if (! PASTEF77(lsame)(diag, "U") && ! PASTEF77(lsame)(diag,
+	    "N")) {
 	info = 3;
     } else if (*n < 0) {
 	info = 4;
@@ -792,16 +788,16 @@
     }
     if (info != 0) {
 	PASTEF77(xerbla)("DTBSV ", &info, (ftnlen)6);
-	return 0;
+	return;
     }
 
 /*     Quick return if possible. */
 
     if (*n == 0) {
-	return 0;
+	return;
     }
 
-    nounit = PASTEF77(lsame)(diag, "N", (ftnlen)1, (ftnlen)1);
+    nounit = PASTEF77(lsame)(diag, "N");
 
 /*     Set up the start point in X if the increment is not unity. This */
 /*     will be  ( N - 1 )*INCX  too small for descending loops. */
@@ -815,11 +811,11 @@
 /*     Start the operations. In this version the elements of A are */
 /*     accessed by sequentially with one pass through A. */
 
-    if (PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(trans, "N")) {
 
 /*        Form  x := inv( A )*x. */
 
-	if (PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+	if (PASTEF77(lsame)(uplo, "U")) {
 	    kplus1 = *k + 1;
 	    if (*incx == 1) {
 		for (j = *n; j >= 1; --j) {
@@ -914,7 +910,7 @@
 
 /*        Form  x := inv( A')*x. */
 
-	if (PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+	if (PASTEF77(lsame)(uplo, "U")) {
 	    kplus1 = *k + 1;
 	    if (*incx == 1) {
 		i__1 = *n;
@@ -1007,7 +1003,7 @@
 	}
     }
 
-    return 0;
+    return;
 
 /*     End of DTBSV . */
 
@@ -1018,7 +1014,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(s,tbsv)(const bla_character *uplo, const bla_character *trans, const bla_character *diag, const bla_integer *n, const bla_integer *k, const bla_real *a, const bla_integer *lda, bla_real *x, const bla_integer *incx)
+/* Subroutine */ void PASTEF77(s,tbsv)(const bla_character *uplo, const bla_character *trans, const bla_character *diag, const bla_integer *n, const bla_integer *k, const bla_real *a, const bla_integer *lda, bla_real *x, const bla_integer *incx)
 {
     /* System generated locals */
     bla_integer a_dim1, a_offset, i__1, i__2, i__3, i__4;
@@ -1029,7 +1025,7 @@
     bla_integer i__, j, l;
     //extern bla_logical PASTEF77(lsame)(bla_character *, bla_character *, ftnlen, ftnlen);
     bla_integer kplus1, ix, jx, kx = 0;
-    //extern /* Subroutine */ int PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
+    //extern /* Subroutine */ void PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
     bla_logical nounit;
 
 /*     .. Scalar Arguments .. */
@@ -1186,15 +1182,13 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(uplo, "L", (
-	    ftnlen)1, (ftnlen)1)) {
+    if (! PASTEF77(lsame)(uplo, "U") && ! PASTEF77(lsame)(uplo, "L")) {
 	info = 1;
-    } else if (! PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans,
-	    "T", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans, "C", (ftnlen)1, (
-	    ftnlen)1)) {
+    } else if (! PASTEF77(lsame)(trans, "N") && ! PASTEF77(lsame)(trans,
+	    "T") && ! PASTEF77(lsame)(trans, "C")) {
 	info = 2;
-    } else if (! PASTEF77(lsame)(diag, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(diag,
-	    "N", (ftnlen)1, (ftnlen)1)) {
+    } else if (! PASTEF77(lsame)(diag, "U") && ! PASTEF77(lsame)(diag,
+	    "N")) {
 	info = 3;
     } else if (*n < 0) {
 	info = 4;
@@ -1207,16 +1201,16 @@
     }
     if (info != 0) {
 	PASTEF77(xerbla)("STBSV ", &info, (ftnlen)6);
-	return 0;
+	return;
     }
 
 /*     Quick return if possible. */
 
     if (*n == 0) {
-	return 0;
+	return;
     }
 
-    nounit = PASTEF77(lsame)(diag, "N", (ftnlen)1, (ftnlen)1);
+    nounit = PASTEF77(lsame)(diag, "N");
 
 /*     Set up the start point in X if the increment is not unity. This */
 /*     will be  ( N - 1 )*INCX  too small for descending loops. */
@@ -1230,11 +1224,11 @@
 /*     Start the operations. In this version the elements of A are */
 /*     accessed by sequentially with one pass through A. */
 
-    if (PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(trans, "N")) {
 
 /*        Form  x := inv( A )*x. */
 
-	if (PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+	if (PASTEF77(lsame)(uplo, "U")) {
 	    kplus1 = *k + 1;
 	    if (*incx == 1) {
 		for (j = *n; j >= 1; --j) {
@@ -1329,7 +1323,7 @@
 
 /*        Form  x := inv( A')*x. */
 
-	if (PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+	if (PASTEF77(lsame)(uplo, "U")) {
 	    kplus1 = *k + 1;
 	    if (*incx == 1) {
 		i__1 = *n;
@@ -1422,7 +1416,7 @@
 	}
     }
 
-    return 0;
+    return;
 
 /*     End of STBSV . */
 
@@ -1433,7 +1427,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(z,tbsv)(const bla_character *uplo, const bla_character *trans, const bla_character *diag, const bla_integer *n, const bla_integer *k, const bla_dcomplex *a, const bla_integer *lda, bla_dcomplex *x, const bla_integer *incx)
+/* Subroutine */ void PASTEF77(z,tbsv)(const bla_character *uplo, const bla_character *trans, const bla_character *diag, const bla_integer *n, const bla_integer *k, const bla_dcomplex *a, const bla_integer *lda, bla_dcomplex *x, const bla_integer *incx)
 {
     /* System generated locals */
     bla_integer a_dim1, a_offset, i__1, i__2, i__3, i__4, i__5;
@@ -1449,7 +1443,7 @@
     bla_integer i__, j, l;
     //extern bla_logical PASTEF77(lsame)(bla_character *, bla_character *, ftnlen, ftnlen);
     bla_integer kplus1, ix, jx, kx = 0;
-    //extern /* Subroutine */ int PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
+    //extern /* Subroutine */ void PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
     bla_logical noconj, nounit;
 
 /*     .. Scalar Arguments .. */
@@ -1606,15 +1600,13 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(uplo, "L", (
-	    ftnlen)1, (ftnlen)1)) {
+    if (! PASTEF77(lsame)(uplo, "U") && ! PASTEF77(lsame)(uplo, "L")) {
 	info = 1;
-    } else if (! PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans,
-	    "T", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(trans, "C", (ftnlen)1, (
-	    ftnlen)1)) {
+    } else if (! PASTEF77(lsame)(trans, "N") && ! PASTEF77(lsame)(trans,
+	    "T") && ! PASTEF77(lsame)(trans, "C")) {
 	info = 2;
-    } else if (! PASTEF77(lsame)(diag, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(diag,
-	    "N", (ftnlen)1, (ftnlen)1)) {
+    } else if (! PASTEF77(lsame)(diag, "U") && ! PASTEF77(lsame)(diag,
+	    "N")) {
 	info = 3;
     } else if (*n < 0) {
 	info = 4;
@@ -1627,17 +1619,17 @@
     }
     if (info != 0) {
 	PASTEF77(xerbla)("ZTBSV ", &info, (ftnlen)6);
-	return 0;
+	return;
     }
 
 /*     Quick return if possible. */
 
     if (*n == 0) {
-	return 0;
+	return;
     }
 
-    noconj = PASTEF77(lsame)(trans, "T", (ftnlen)1, (ftnlen)1);
-    nounit = PASTEF77(lsame)(diag, "N", (ftnlen)1, (ftnlen)1);
+    noconj = PASTEF77(lsame)(trans, "T");
+    nounit = PASTEF77(lsame)(diag, "N");
 
 /*     Set up the start point in X if the increment is not unity. This */
 /*     will be  ( N - 1 )*INCX  too small for descending loops. */
@@ -1651,11 +1643,11 @@
 /*     Start the operations. In this version the elements of A are */
 /*     accessed by sequentially with one pass through A. */
 
-    if (PASTEF77(lsame)(trans, "N", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(trans, "N")) {
 
 /*        Form  x := inv( A )*x. */
 
-	if (PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+	if (PASTEF77(lsame)(uplo, "U")) {
 	    kplus1 = *k + 1;
 	    if (*incx == 1) {
 		for (j = *n; j >= 1; --j) {
@@ -1786,7 +1778,7 @@
 
 /*        Form  x := inv( A' )*x  or  x := inv( conjg( A') )*x. */
 
-	if (PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+	if (PASTEF77(lsame)(uplo, "U")) {
 	    kplus1 = *k + 1;
 	    if (*incx == 1) {
 		i__1 = *n;
@@ -1985,7 +1977,7 @@
 	}
     }
 
-    return 0;
+    return;
 
 /*     End of ZTBSV . */
 

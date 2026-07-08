@@ -41,7 +41,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(s,rotmg)(bla_real *sd1, bla_real *sd2, bla_real *sx1, const bla_real *sy1, bla_real *sparam)
+/* Subroutine */ void PASTEF77(s,rotmg)(bla_real *sd1, bla_real *sd2, bla_real *sx1, const bla_real *sy1, bla_real *sparam)
 {
     /* Initialized data */
 
@@ -273,7 +273,7 @@ L250:
     sparam[5] = sh22;
 L260:
     sparam[1] = sflag;
-    return 0;
+    return;
 } /* srotmg_ */
 
 /* drotmg.f -- translated by f2c (version 19991025).
@@ -281,7 +281,7 @@ L260:
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(d,rotmg)(bla_double *dd1, bla_double *dd2, bla_double *dx1, const bla_double *dy1, bla_double *dparam)
+/* Subroutine */ void PASTEF77(d,rotmg)(bla_double *dd1, bla_double *dd2, bla_double *dx1, const bla_double *dy1, bla_double *dparam)
 {
     /* Initialized data */
 
@@ -513,7 +513,7 @@ L250:
     dparam[5] = dh22;
 L260:
     dparam[1] = dflag;
-    return 0;
+    return;
 } /* drotmg_ */
 
 #endif

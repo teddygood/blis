@@ -41,10 +41,10 @@
 	f77_int lower, upper; \
 	f77_int nrowa; \
 \
-	nota  = PASTEF77(lsame)( transa, "N", (ftnlen)1, (ftnlen)1 ); \
-	conja = PASTEF77(lsame)( transa, "C", (ftnlen)1, (ftnlen)1 ); \
-	lower = PASTEF77(lsame)( uploc,  "L", (ftnlen)1, (ftnlen)1 ); \
-	upper = PASTEF77(lsame)( uploc,  "U", (ftnlen)1, (ftnlen)1 ); \
+	nota  = PASTEF77(lsame)( transa, "N"); \
+	conja = PASTEF77(lsame)( transa, "C"); \
+	lower = PASTEF77(lsame)( uploc,  "L"); \
+	upper = PASTEF77(lsame)( uploc,  "U"); \
 \
 	if ( nota ) { nrowa = *m; } \
 	else        { nrowa = *k; } \

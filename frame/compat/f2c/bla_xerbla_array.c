@@ -38,7 +38,7 @@
 
 #define MAX_NUM_CHARS 32
 
-int PASTEF77(xerbla_array)(const bla_character *srname_array, const bla_integer srname_len, const bla_integer *info)
+void PASTEF77(xerbla_array)(const bla_character *srname_array, const bla_integer *srname_len, const bla_integer *info)
 {
 	int  i;
 #if 1
@@ -53,7 +53,7 @@ int PASTEF77(xerbla_array)(const bla_character *srname_array, const bla_integer 
 
 	// Compute the number of chars to copy as the minimum of the length of
 	// srname_array and MAX_NUM_CHARS.
-	const int n_copy = bli_min( srname_len, MAX_NUM_CHARS );
+	const int n_copy = bli_min( *srname_len, MAX_NUM_CHARS );
 
 	// Copy over each element of srname_array.
 	for ( i = 0; i < n_copy; ++i )
@@ -65,9 +65,9 @@ int PASTEF77(xerbla_array)(const bla_character *srname_array, const bla_integer 
 	srname[i] = '\0';
 
 	// Call xerbla_().
-	PASTEF77(xerbla)( srname, info, ( ftnlen )srname_len );
+	PASTEF77(xerbla)( srname, info, ( ftnlen )*srname_len );
 
-	return 0;
+	return;
 }
 
 #endif

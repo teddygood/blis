@@ -42,7 +42,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(s,rot)(const bla_integer *n, bla_real *sx, const bla_integer *incx, bla_real *sy, const bla_integer *incy, const bla_real *c__, const bla_real *s)
+/* Subroutine */ void PASTEF77(s,rot)(const bla_integer *n, bla_real *sx, const bla_integer *incx, bla_real *sy, const bla_integer *incy, const bla_real *c__, const bla_real *s)
 {
     /* System generated locals */
     bla_integer i__1;
@@ -64,7 +64,7 @@
 
     /* Function Body */
     if (*n <= 0) {
-	return 0;
+	return;
     }
     if (*incx == 1 && *incy == 1) {
 	goto L20;
@@ -90,7 +90,7 @@
 	iy += *incy;
 /* L10: */
     }
-    return 0;
+    return;
 
 /*       code for both increments equal to 1 */
 
@@ -102,7 +102,7 @@ L20:
 	sx[i__] = stemp;
 /* L30: */
     }
-    return 0;
+    return;
 } /* srot_ */
 
 /* drot.f -- translated by f2c (version 19991025).
@@ -110,7 +110,7 @@ L20:
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(d,rot)(const bla_integer *n, bla_double *dx, const bla_integer *incx, bla_double *dy, const bla_integer *incy, const bla_double *c__, const bla_double *s)
+/* Subroutine */ void PASTEF77(d,rot)(const bla_integer *n, bla_double *dx, const bla_integer *incx, bla_double *dy, const bla_integer *incy, const bla_double *c__, const bla_double *s)
 {
     /* System generated locals */
     bla_integer i__1;
@@ -132,7 +132,7 @@ L20:
 
     /* Function Body */
     if (*n <= 0) {
-	return 0;
+	return;
     }
     if (*incx == 1 && *incy == 1) {
 	goto L20;
@@ -158,7 +158,7 @@ L20:
 	iy += *incy;
 /* L10: */
     }
-    return 0;
+    return;
 
 /*       code for both increments equal to 1 */
 
@@ -170,7 +170,7 @@ L20:
 	dx[i__] = dtemp;
 /* L30: */
     }
-    return 0;
+    return;
 } /* drot_ */
 
 /* csrot.f -- translated by f2c (version 19991025).
@@ -178,7 +178,7 @@ L20:
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(cs,rot)(const bla_integer *n, bla_scomplex *cx, const bla_integer *incx, bla_scomplex *cy, const bla_integer *incy, const bla_real *c__, const bla_real *s)
+/* Subroutine */ void PASTEF77(cs,rot)(const bla_integer *n, bla_scomplex *cx, const bla_integer *incx, bla_scomplex *cy, const bla_integer *incy, const bla_real *c__, const bla_real *s)
 {
     /* System generated locals */
     bla_integer i__1, i__2, i__3, i__4;
@@ -201,7 +201,7 @@ L20:
 
     /* Function Body */
     if (*n <= 0) {
-	return 0;
+	return;
     }
     if (*incx == 1 && *incy == 1) {
 	goto L20;
@@ -239,7 +239,7 @@ L20:
 	iy += *incy;
 /* L10: */
     }
-    return 0;
+    return;
 
 /*       code for both increments equal to 1 */
 
@@ -263,7 +263,7 @@ L20:
 	bli_tsets( c,c, (bli_creal(ctemp)), (bli_cimag(ctemp)), cx[i__2] );
 /* L30: */
     }
-    return 0;
+    return;
 } /* csrot_ */
 
 /* zdrot.f -- translated by f2c (version 19991025).
@@ -271,7 +271,7 @@ L20:
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(zd,rot)(const bla_integer *n, bla_dcomplex *zx, const bla_integer *incx, bla_dcomplex *zy, const bla_integer *incy, const bla_double *c__, const bla_double *s)
+/* Subroutine */ void PASTEF77(zd,rot)(const bla_integer *n, bla_dcomplex *zx, const bla_integer *incx, bla_dcomplex *zy, const bla_integer *incy, const bla_double *c__, const bla_double *s)
 {
     /* System generated locals */
     bla_integer i__1, i__2, i__3, i__4;
@@ -294,7 +294,7 @@ L20:
 
     /* Function Body */
     if (*n <= 0) {
-	return 0;
+	return;
     }
     if (*incx == 1 && *incy == 1) {
 	goto L20;
@@ -332,7 +332,7 @@ L20:
 	iy += *incy;
 /* L10: */
     }
-    return 0;
+    return;
 
 /*       code for both increments equal to 1 */
 
@@ -356,7 +356,7 @@ L20:
 	bli_tsets( z,z, (bli_zreal(ztemp)), (bli_zimag(ztemp)), zx[i__2] );
 /* L30: */
     }
-    return 0;
+    return;
 } /* zdrot_ */
 
 
@@ -371,7 +371,7 @@ L20:
 
 		http://www.netlib.org/f2c/libf2c.zip
 */
-/* Subroutine */ int PASTEF77(c,rot)(const bla_integer *n, bla_scomplex *cx, const bla_integer *incx, bla_scomplex *cy, const bla_integer *incy, const bla_real *c__, const bla_scomplex *s)
+/* Subroutine */ void PASTEF77(c,rot)(const bla_integer *n, bla_scomplex *cx, const bla_integer *incx, bla_scomplex *cy, const bla_integer *incy, const bla_real *c__, const bla_scomplex *s)
 {
     /* System generated locals */
     bla_integer i__1, i__2, i__3, i__4;
@@ -388,7 +388,7 @@ L20:
 
     /* Function Body */
     if (*n <= 0) {
-	return 0;
+	return;
     }
     if (*incx == 1 && *incy == 1) {
 	goto L20;
@@ -507,7 +507,7 @@ L20:
 	iy += *incy;
 /* L10: */
     }
-    return 0;
+    return;
 
 /*     Code for both increments equal to 1 */
 
@@ -613,7 +613,7 @@ L20:
 #endif
 /* L30: */
     }
-    return 0;
+    return;
 } /* crot_ */
 
 
@@ -628,7 +628,7 @@ L20:
 
 		http://www.netlib.org/f2c/libf2c.zip
 */
-/* Subroutine */ int PASTEF77(z,rot)(const bla_integer *n, bla_dcomplex *cx, const bla_integer *incx, bla_dcomplex *cy, const bla_integer *incy, const bla_double *c__, const bla_dcomplex *s)
+/* Subroutine */ void PASTEF77(z,rot)(const bla_integer *n, bla_dcomplex *cx, const bla_integer *incx, bla_dcomplex *cy, const bla_integer *incy, const bla_double *c__, const bla_dcomplex *s)
 {
     /* System generated locals */
     bla_integer i__1, i__2, i__3, i__4;
@@ -645,7 +645,7 @@ L20:
 
     /* Function Body */
     if (*n <= 0) {
-	return 0;
+	return;
     }
     if (*incx == 1 && *incy == 1) {
 	goto L20;
@@ -764,7 +764,7 @@ L20:
 	iy += *incy;
 /* L10: */
     }
-    return 0;
+    return;
 
 /*     Code for both increments equal to 1 */
 
@@ -870,7 +870,7 @@ L20:
 #endif
 /* L30: */
     }
-    return 0;
+    return;
 } /* zrot_ */
 
 

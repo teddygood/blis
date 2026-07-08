@@ -45,7 +45,7 @@
 
 static bla_real sc_b4 = 1.f;
 
-/* Subroutine */ int PASTEF77(s,rotg)(bla_real *sa, bla_real *sb, bla_real *c__, bla_real *s)
+/* Subroutine */ void PASTEF77(s,rotg)(bla_real *sa, bla_real *sb, bla_real *c__, bla_real *s)
 {
     /* System generated locals */
     bla_real r__1, r__2;
@@ -93,7 +93,7 @@ L10:
 L20:
     *sa = r__;
     *sb = z__;
-    return 0;
+    return;
 } /* srotg_ */
 
 /* drotg.f -- translated by f2c (version 19991025).
@@ -105,7 +105,7 @@ L20:
 
 static bla_double dc_b4 = 1.;
 
-/* Subroutine */ int PASTEF77(d,rotg)(bla_double *da, bla_double *db, bla_double *c__, bla_double *s)
+/* Subroutine */ void PASTEF77(d,rotg)(bla_double *da, bla_double *db, bla_double *c__, bla_double *s)
 {
     /* System generated locals */
     bla_double d__1, d__2;
@@ -153,7 +153,7 @@ L10:
 L20:
     *da = r__;
     *db = z__;
-    return 0;
+    return;
 } /* drotg_ */
 
 /* crotg.f -- translated by f2c (version 19991025).
@@ -161,7 +161,7 @@ L20:
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(c,rotg)(bla_scomplex *ca, bla_scomplex *cb, bla_real *c__, bla_scomplex *s)
+/* Subroutine */ void PASTEF77(c,rotg)(bla_scomplex *ca, bla_scomplex *cb, bla_real *c__, bla_scomplex *s)
 {
     /* System generated locals */
     bla_real r__1, r__2;
@@ -203,7 +203,7 @@ L10:
     bli_tsets( c,c, (norm * bli_creal(alpha)), (norm * bli_cimag(alpha)), q__1 );
     bli_tsets( c,c, bli_creal(q__1), bli_cimag(q__1), *ca );
 L20:
-    return 0;
+    return;
 } /* crotg_ */
 
 /* zrotg.f -- translated by f2c (version 19991025).
@@ -211,7 +211,7 @@ L20:
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(z,rotg)(bla_dcomplex *ca, bla_dcomplex *cb, bla_double *c__, bla_dcomplex *s)
+/* Subroutine */ void PASTEF77(z,rotg)(bla_dcomplex *ca, bla_dcomplex *cb, bla_double *c__, bla_dcomplex *s)
 {
     /* System generated locals */
     bla_double d__1, d__2;
@@ -257,7 +257,7 @@ L10:
     bli_tsets( z,z, (norm * bli_zreal(alpha)), (norm * bli_zimag(alpha)), z__1 );
     bli_tsets( z,z, bli_zreal(z__1), bli_zimag(z__1), *ca );
 L20:
-    return 0;
+    return;
 } /* zrotg_ */
 
 #endif

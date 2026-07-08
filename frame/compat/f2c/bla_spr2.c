@@ -41,7 +41,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(d,spr2)(const bla_character *uplo, const bla_integer *n, const bla_double *alpha, const bla_double *x, const bla_integer *incx, const bla_double *y, const bla_integer *incy, bla_double *ap)
+/* Subroutine */ void PASTEF77(d,spr2)(const bla_character *uplo, const bla_integer *n, const bla_double *alpha, const bla_double *x, const bla_integer *incx, const bla_double *y, const bla_integer *incy, bla_double *ap)
 {
     /* System generated locals */
     bla_integer i__1, i__2;
@@ -52,7 +52,7 @@
     bla_integer i__, j, k;
     //extern bla_logical PASTEF77(lsame)(bla_character *, bla_character *, ftnlen, ftnlen);
     bla_integer kk, ix, iy, jx = 0, jy = 0, kx = 0, ky = 0;
-    //extern /* Subroutine */ int PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
+    //extern /* Subroutine */ void PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
 
 /*     .. Scalar Arguments .. */
 /*     .. Array Arguments .. */
@@ -158,8 +158,7 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(uplo, "L", (
-	    ftnlen)1, (ftnlen)1)) {
+    if (! PASTEF77(lsame)(uplo, "U") && ! PASTEF77(lsame)(uplo, "L")) {
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
@@ -170,13 +169,13 @@
     }
     if (info != 0) {
 	PASTEF77(xerbla)("DSPR2 ", &info, (ftnlen)6);
-	return 0;
+	return;
     }
 
 /*     Quick return if possible. */
 
     if (*n == 0 || *alpha == 0.) {
-	return 0;
+	return;
     }
 
 /*     Set up the start points in X and Y if the increments are not both */
@@ -201,7 +200,7 @@
 /*     are accessed sequentially with one pass through AP. */
 
     kk = 1;
-    if (PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(uplo, "U")) {
 
 /*        Form  A  when upper triangle is stored in AP. */
 
@@ -289,7 +288,7 @@
 	}
     }
 
-    return 0;
+    return;
 
 /*     End of DSPR2 . */
 
@@ -300,7 +299,7 @@
 	-lf2c -lm   (in that order)
 */
 
-/* Subroutine */ int PASTEF77(s,spr2)(const bla_character *uplo, const bla_integer *n, const bla_real *alpha, const bla_real *x, const bla_integer *incx, const bla_real *y, const bla_integer *incy, bla_real *ap)
+/* Subroutine */ void PASTEF77(s,spr2)(const bla_character *uplo, const bla_integer *n, const bla_real *alpha, const bla_real *x, const bla_integer *incx, const bla_real *y, const bla_integer *incy, bla_real *ap)
 {
     /* System generated locals */
     bla_integer i__1, i__2;
@@ -311,7 +310,7 @@
     bla_integer i__, j, k;
     //extern bla_logical PASTEF77(lsame)(bla_character *, bla_character *, ftnlen, ftnlen);
     bla_integer kk, ix, iy, jx = 0, jy = 0, kx = 0, ky = 0;
-    //extern /* Subroutine */ int PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
+    //extern /* Subroutine */ void PASTEF77(xerbla)(bla_character *, bla_integer *, ftnlen);
 
 /*     .. Scalar Arguments .. */
 /*     .. Array Arguments .. */
@@ -417,8 +416,7 @@
 
     /* Function Body */
     info = 0;
-    if (! PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1) && ! PASTEF77(lsame)(uplo, "L", (
-	    ftnlen)1, (ftnlen)1)) {
+    if (! PASTEF77(lsame)(uplo, "U") && ! PASTEF77(lsame)(uplo, "L")) {
 	info = 1;
     } else if (*n < 0) {
 	info = 2;
@@ -429,13 +427,13 @@
     }
     if (info != 0) {
 	PASTEF77(xerbla)("SSPR2 ", &info, (ftnlen)6);
-	return 0;
+	return;
     }
 
 /*     Quick return if possible. */
 
     if (*n == 0 || *alpha == 0.f) {
-	return 0;
+	return;
     }
 
 /*     Set up the start points in X and Y if the increments are not both */
@@ -460,7 +458,7 @@
 /*     are accessed sequentially with one pass through AP. */
 
     kk = 1;
-    if (PASTEF77(lsame)(uplo, "U", (ftnlen)1, (ftnlen)1)) {
+    if (PASTEF77(lsame)(uplo, "U")) {
 
 /*        Form  A  when upper triangle is stored in AP. */
 
@@ -548,7 +546,7 @@
 	}
     }
 
-    return 0;
+    return;
 
 /*     End of SSPR2 . */
 

@@ -43,9 +43,9 @@
 
 
 #ifdef LAPACK_ILP64
-long PASTEF77(lsame)(const char *ca, const char *cb, long ca_len, long cb_len)
+long PASTEF77(lsame)(const char *ca, const char *cb)
 #else
-int PASTEF77(lsame)(const char *ca, const char *cb, int ca_len, int cb_len)
+int PASTEF77(lsame)(const char *ca, const char *cb)
 #endif
 {
     /* System generated locals */

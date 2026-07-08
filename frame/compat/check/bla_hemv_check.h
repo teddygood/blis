@@ -39,8 +39,8 @@
 	f77_int info = 0; \
 	f77_int lower, upper; \
 \
-	lower = PASTEF77(lsame)( uploa, "L", (ftnlen)1, (ftnlen)1 ); \
-	upper = PASTEF77(lsame)( uploa, "U", (ftnlen)1, (ftnlen)1 ); \
+	lower = PASTEF77(lsame)( uploa, "L"); \
+	upper = PASTEF77(lsame)( uploa, "U"); \
 \
 	if      ( !lower && !upper ) \
 		info = 1; \

@@ -39,9 +39,9 @@
 	f77_int info = 0; \
 	f77_int nota, ta, conja; \
 \
-	nota  = PASTEF77(lsame)( transa, "N", (ftnlen)1, (ftnlen)1 ); \
-	ta    = PASTEF77(lsame)( transa, "T", (ftnlen)1, (ftnlen)1 ); \
-	conja = PASTEF77(lsame)( transa, "C", (ftnlen)1, (ftnlen)1 ); \
+	nota  = PASTEF77(lsame)( transa, "N"); \
+	ta    = PASTEF77(lsame)( transa, "T"); \
+	conja = PASTEF77(lsame)( transa, "C"); \
 \
 	if      ( !nota && !ta && !conja ) \
 		info = 1; \

@@ -43,15 +43,15 @@
 	f77_int unita, nonua; \
 	f77_int nrowa; \
 \
-	left  = PASTEF77(lsame)( sidea,  "L", (ftnlen)1, (ftnlen)1 ); \
-	right = PASTEF77(lsame)( sidea,  "R", (ftnlen)1, (ftnlen)1 ); \
-	lower = PASTEF77(lsame)( uploa,  "L", (ftnlen)1, (ftnlen)1 ); \
-	upper = PASTEF77(lsame)( uploa,  "U", (ftnlen)1, (ftnlen)1 ); \
-	nota  = PASTEF77(lsame)( transa, "N", (ftnlen)1, (ftnlen)1 ); \
-	ta    = PASTEF77(lsame)( transa, "T", (ftnlen)1, (ftnlen)1 ); \
-	conja = PASTEF77(lsame)( transa, "C", (ftnlen)1, (ftnlen)1 ); \
-	unita = PASTEF77(lsame)( diaga,  "U", (ftnlen)1, (ftnlen)1 ); \
-	nonua = PASTEF77(lsame)( diaga,  "N", (ftnlen)1, (ftnlen)1 ); \
+	left  = PASTEF77(lsame)( sidea,  "L"); \
+	right = PASTEF77(lsame)( sidea,  "R"); \
+	lower = PASTEF77(lsame)( uploa,  "L"); \
+	upper = PASTEF77(lsame)( uploa,  "U"); \
+	nota  = PASTEF77(lsame)( transa, "N"); \
+	ta    = PASTEF77(lsame)( transa, "T"); \
+	conja = PASTEF77(lsame)( transa, "C"); \
+	unita = PASTEF77(lsame)( diaga,  "U"); \
+	nonua = PASTEF77(lsame)( diaga,  "N"); \
 \
 	if ( left ) { nrowa = *m; } \
 	else        { nrowa = *n; } \
