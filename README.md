@@ -1,3 +1,39 @@
+> [!NOTE]
+> This is [Pyodide](https://pyodide.org)'s fork of the BLIS software.
+>
+> This repository is a downstream fork of [flame/blis](https://github.com/flame/blis),
+> maintained under the [Pyodide](https://github.com/pyodide) organisation. It exists to
+> carry the patches needed to compile BLIS to WebAssembly with Emscripten, so that it can
+> serve as the BLAS backend for [SciPy](https://scipy.org) in Pyodide.
+> This enables the overall scientific Python stack to run in the browser without a
+> Fortran-to-WASM compiler toolchain, with SciPy as an example of such an effort.
+>
+> This `master` branch mirrors upstream `flame/blis`, aside from this note. The patched
+> work lives on the [`pyodide-2.1`](https://github.com/pyodide/blis/tree/pyodide-2.1)
+> branch, which is built on top of the upstream
+> [`2.1`](https://github.com/flame/blis/releases/tag/2.1) release.
+
+> [!IMPORTANT]
+> What is patched on the [`pyodide-2.1`](https://github.com/pyodide/blis/tree/pyodide-2.1) branch (on top of the `2.1` release):
+>
+> 1. The first is a patch to compile BLIS to WebAssembly. It adds a `wasm32` configuration
+>    and the plumbing to build BLIS with Emscripten as a shared module. This is squashed
+>    from [agriyakhetarpal/blis#1](https://github.com/agriyakhetarpal/blis/pull/1).
+> 2. A CBLAS interface for `crotg`, `zrotg`, `zdrot`, and `csrot` has been added. This change
+>    is a backport of [flame/blis#926](https://github.com/flame/blis/pull/926). Please see
+>    [flame/blis#916](https://github.com/flame/blis/issues/916)) for more information.
+> 3. Patches for the normalisation of the WASM ABI. Various f2c-ed reference BLAS subroutines
+>    are changed to have `void` returns, the two unused string-length arguments from `lsame_`
+>    are dropped, and `xerbla_array_` is given a void, pointer-length signature that is used
+>    by reference LAPACK and SciPy's cython_lapack.
+>
+> These patches are also tracked in the Pyodide recipe at this PR:
+> [pyodide/pyodide-recipes#619](https://github.com/pyodide/pyodide-recipes/pull/619).
+> For the wider effort to build a Fortran-free WebAssembly SciPy, please see
+> [pyodide/pyodide-recipes#604](https://github.com/pyodide/pyodide-recipes/issues/604).
+
+---
+
 _Recipient of the **[2023 James H. Wilkinson Prize for Numerical Software](https://www.siam.org/prizes-recognition/major-prizes-lectures/detail/james-h-wilkinson-prize-for-numerical-software)**_
 
 _Recipient of the **[2020 SIAM Activity Group on Supercomputing Best Paper Prize](https://www.siam.org/prizes-recognition/activity-group-prizes/detail/siag-sc-best-paper-prize)**_
