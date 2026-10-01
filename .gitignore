@@ -53,6 +53,12 @@ output.testsuite.*
 # WASM CI artifacts (ci/wasm/do_wasm.sh)
 wasm-artifacts/
 
+# WASM semicolon-lapack integration scratch dirs (ci/wasm/do_lapack.sh)
+wasm-lapack-work/
+wasm-deps/
+wasm-prefix/
+ci/wasm/__pycache__/
+
 # BLAS test output files
 out.*
 
