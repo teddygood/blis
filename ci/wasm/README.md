@@ -30,3 +30,47 @@ Settings:
 Logs (`configure.log`, `build.log`, `link.log`), `output.testsuite`, and
 `versions.txt` land in `wasm-artifacts/` and are uploaded by the workflow
 on success and on failure.
+
+# semicolon-lapack integration (`do_lapack.sh`)
+
+`do_lapack.sh` builds the pinned CMocka test suite of
+[semicolon-lapack](https://github.com/ilayn/semicolon-lapack) against the
+`lib/wasm32/libblis.a` left in-tree by `do_wasm.sh` and runs it under
+Node.js. It runs as a second stage in the same workflow job, after a
+successful `do_wasm.sh`.
+
+These tests cover the static, single-threaded CBLAS build. SciPy and
+Pyodide integration require separate tests.
+
+Prerequisites: emsdk plus `git`, `python3`, `pkg-config`, `meson`,
+`ninja` and `cmake` (CI pins meson 1.12.1, ninja 1.13.2 and cmake 4.2.3).
+
+Local reproduction (run `do_wasm.sh` first):
+
+```sh
+# meson + ninja + cmake are required in addition to emsdk (e.g. a venv):
+python3 -m venv .task-tools/meson-venv
+.task-tools/meson-venv/bin/pip install 'meson==1.12.1' 'ninja==1.13.2' 'cmake==4.2.3'
+
+EMSDK=$PWD/emsdk NODE="$(command -v node)" \
+  PATH="$PWD/.task-tools/meson-venv/bin:$PATH" \
+  TEST_JOBS=$(nproc) ci/wasm/do_lapack.sh
+```
+
+`NODE` must resolve to Node 24 (`REQUIRED_NODE_MAJOR`, default 24): emsdk
+6.0.5 bundles Node 22, so CI captures the `setup-node` path into `NODE`
+before `emsdk_env.sh` runs. `TEST_JOBS` defaults to 2 for CI; raise it
+locally for a faster suite run. `WORK_DIR` (default `./wasm-lapack-work`)
+holds the dependency checkouts and is recreated on every run.
+semicolon-lapack and cmocka are pinned by full commit SHA. See the
+variable defaults in do_lapack.sh for dependency overrides.
+
+`ci/wasm/check-lapack-results-selftest.sh` exercises the result checker
+against fixture streams (passes, `not ok`, bailouts, missing
+trailers/plans, duplicate/missing records, wrong node path). At the
+pinned revision the suite is 480 executables / 512 CMocka groups with 94
+expected upstream subtest skips.
+
+Artifacts land in `wasm-artifacts/lapack/` and are uploaded with the rest
+of `wasm-artifacts/` on success and on failure; `linkage.txt` collects
+the candidate provenance and link evidence.
