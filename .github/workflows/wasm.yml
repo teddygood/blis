@@ -1,0 +1,62 @@
+name: wasm
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+      - amd
+      - pyodide-2.1
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  testsuite:
+    name: wasm32 testsuite (emsdk ${{ matrix.emsdk }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        emsdk:
+          - '5.0.3'
+          - '6.0.5'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      - name: Install Emscripten ${{ matrix.emsdk }}
+        # emsdk lives outside the checkout, like ci/do_riscv.sh's
+        # toolchain dir; cloning the tag pins installer and toolchain.
+        run: |
+          git clone --depth 1 --branch "${{ matrix.emsdk }}" \
+            https://github.com/emscripten-core/emsdk.git ../emsdk
+          ../emsdk/emsdk install "${{ matrix.emsdk }}"
+          ../emsdk/emsdk activate "${{ matrix.emsdk }}"
+
+      - name: Build BLIS and run the fast testsuite under Node
+        env:
+          EMSDK: ${{ github.workspace }}/../emsdk
+        # Pass the setup-node Node 24 explicitly; do_wasm.sh would
+        # otherwise default to emsdk's bundled node ($EMSDK_NODE).
+        run: NODE="$(command -v node)" ci/wasm/do_wasm.sh
+
+      - name: Upload logs and test output
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: wasm-testsuite-emsdk-${{ matrix.emsdk }}
+          path: wasm-artifacts/
+          if-no-files-found: warn
+          retention-days: 14
