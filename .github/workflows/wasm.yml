@@ -18,8 +18,9 @@ concurrency:
 
 jobs:
   testsuite:
-    name: wasm32 testsuite (emsdk ${{ matrix.emsdk }})
+    name: wasm32 testsuite + semicolon-lapack (emsdk ${{ matrix.emsdk }})
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -52,11 +53,26 @@ jobs:
         # otherwise default to emsdk's bundled node ($EMSDK_NODE).
         run: NODE="$(command -v node)" ci/wasm/do_wasm.sh
 
+      - name: Install pinned Meson, Ninja and CMake
+        run: |
+          python3 -m venv ../build-tools
+          ../build-tools/bin/pip install \
+            'meson==1.12.1' 'ninja==1.13.2' 'cmake==4.2.3'
+
+      - name: Link semicolon-lapack against the candidate archive and test
+        env:
+          EMSDK: ${{ github.workspace }}/../emsdk
+        # NODE captures the setup-node Node 24 path before emsdk_env.sh can
+        # prepend emsdk's bundled node (6.0.5 ships Node 22).
+        run: |
+          export PATH="$PWD/../build-tools/bin:$PATH"
+          NODE="$(command -v node)" ci/wasm/do_lapack.sh
+
       - name: Upload logs and test output
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: wasm-testsuite-emsdk-${{ matrix.emsdk }}
+          name: wasm-testsuite-lapack-emsdk-${{ matrix.emsdk }}
           path: wasm-artifacts/
           if-no-files-found: warn
           retention-days: 14
