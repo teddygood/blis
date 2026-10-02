@@ -32,7 +32,16 @@
 
 */
 
-// This file is intentionally left blank. No kernel overrides are needed
-// because we have used generic reference kernels for wasm32. We still need
-// to provide this file so that the build system can find it and compile it,
-// but it does not need to contain any code.
+//#ifndef BLIS_KERNEL_DEFS_H
+//#define BLIS_KERNEL_DEFS_H
+
+
+// -- REGISTER BLOCK SIZES (FOR REFERENCE KERNELS) ----------------------------
+
+// The wasm32 double-precision gemm microkernel is 4x4; the reference
+// kernels must step through packed panels at the same strides that the
+// registered kernel and the runtime context use.
+#define BLIS_MR_d   4
+#define BLIS_NR_d   4
+
+//#endif
