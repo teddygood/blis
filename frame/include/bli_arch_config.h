@@ -281,6 +281,12 @@ INSERT_GENTCONF
 #include "bli_kernels_sifive_x280.h"
 #endif
 
+// -- WebAssembly --
+
+#ifdef BLIS_KERNELS_WASM32
+#include "bli_kernels_wasm32.h"
+#endif
+
 
 #endif
 

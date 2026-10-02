@@ -13,7 +13,7 @@
       notice, this list of conditions and the following disclaimer.
     - Redistributions in binary form must reproduce the above copyright
       notice, this list of conditions and the following disclaimer in the
-      documentation and/or other statements provided with the distribution.
+      documentation and/or other materials provided with the distribution.
     - Neither the name(s) of the copyright holder(s) nor the names of its
       contributors may be used to endorse or promote products derived
       from this software without specific prior written permission.
@@ -32,16 +32,4 @@
 
 */
 
-//#ifndef BLIS_KERNEL_DEFS_H
-//#define BLIS_KERNEL_DEFS_H
-
-
-// -- REGISTER BLOCK SIZES (FOR REFERENCE KERNELS) ----------------------------
-
-// The wasm32 double-precision gemm microkernel is 4x4; the reference
-// kernels must step through packed panels at the same strides that the
-// registered kernel and the runtime context use.
-#define BLIS_MR_d   4
-#define BLIS_NR_d   4
-
-//#endif
+GEMM_UKR_PROT( double, d, gemm_wasm32_simd128_4x4 )
