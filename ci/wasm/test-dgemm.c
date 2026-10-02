@@ -833,6 +833,141 @@ static void test_cblas_zgemm( void )
 	bli_ind_enable_dt( BLIS_1M, BLIS_DCOMPLEX );
 }
 
+// -- dispatch assertions -----------------------------------------------------------
+
+// Compiled only when the wasm32 kernel set is registered; the same source
+// must still pass on a pure reference build.
+#ifdef BLIS_KERNELS_WASM32
+
+static gemm_ukr_ft saved_dgemm_ukr;
+static unsigned    dgemm_ukr_calls;
+
+// Counting delegate proving that public gemm calls reach the selected
+// microkernel; installed only for the duration of the probe.
+static void counting_dgemm_ukr
+     (
+             dim_t      m,
+             dim_t      n,
+             dim_t      k,
+       const void*      alpha,
+       const void*      a,
+       const void*      b,
+       const void*      beta,
+             void*      c, inc_t rs_c, inc_t cs_c,
+       const auxinfo_t* data,
+       const cntx_t*    cntx
+     )
+{
+	++dgemm_ukr_calls;
+	saved_dgemm_ukr( m, n, k, alpha, a, b, beta, c, rs_c, cs_c, data, cntx );
+}
+
+static void test_dispatch( const cntx_t* cntx )
+{
+	const func_t* gemm_ukrs = bli_cntx_get_ukrs( BLIS_GEMM_UKR, cntx );
+	const void_fp dgemm_ukr = bli_func_get_dt( BLIS_DOUBLE, gemm_ukrs );
+
+	CHECK( dgemm_ukr == ( void_fp )bli_dgemm_wasm32_simd128_4x4,
+	       "double gemm ukr is not the wasm32 simd128 kernel" );
+	CHECK( bli_cntx_get_ukr_prefs_dt( BLIS_DOUBLE, BLIS_GEMM_UKR_ROW_PREF, cntx ),
+	       "double gemm ukr row preference not set" );
+
+	CHECK( bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_MR, cntx ) == 4 &&
+	       bli_cntx_get_blksz_max_dt( BLIS_DOUBLE, BLIS_MR, cntx ) == 4,
+	       "double MR is not 4/4" );
+	CHECK( bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_NR, cntx ) == 4 &&
+	       bli_cntx_get_blksz_max_dt( BLIS_DOUBLE, BLIS_NR, cntx ) == 4,
+	       "double NR is not 4/4" );
+	CHECK( bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_KR,  cntx ) == 1,
+	       "double KR is not 1" );
+	CHECK( bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_BBM, cntx ) == 1 &&
+	       bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_BBN, cntx ) == 1,
+	       "double BBM/BBN are not 1" );
+	CHECK( bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_MC, cntx ) == 128 &&
+	       bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_KC, cntx ) == 256 &&
+	       bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_NC, cntx ) == 4096,
+	       "double cache blocksizes changed" );
+	CHECK( bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_MT, cntx ) == 0 &&
+	       bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_NT, cntx ) == 0 &&
+	       bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_KT, cntx ) == 0,
+	       "double sup thresholds changed" );
+
+	// Every other datatype and kernel slot must match a fresh reference
+	// context for this architecture.
+	cntx_t ref;
+	bli_gks_init_ref_cntx( &ref );
+
+	static const kerid_t ukrs[] =
+	{
+		BLIS_GEMM_UKR, BLIS_GEMM1M_UKR,
+		BLIS_GEMMTRSM_L_UKR, BLIS_GEMMTRSM_U_UKR,
+		BLIS_TRSM_L_UKR,     BLIS_TRSM_U_UKR,
+		BLIS_GEMMTRSM1M_L_UKR, BLIS_GEMMTRSM1M_U_UKR,
+	};
+	static const num_t dts[] =
+		{ BLIS_FLOAT, BLIS_DOUBLE, BLIS_SCOMPLEX, BLIS_DCOMPLEX };
+
+	for ( size_t i = 0; i < sizeof( ukrs )/sizeof( ukrs[0] ); ++i )
+	for ( size_t j = 0; j < sizeof( dts ) / sizeof( dts[0] ); ++j )
+	{
+		if ( ukrs[i] == BLIS_GEMM_UKR && dts[j] == BLIS_DOUBLE ) continue;
+		const func_t* f_new = bli_cntx_get_ukrs( ukrs[i], cntx );
+		const func_t* f_ref = bli_cntx_get_ukrs( ukrs[i], &ref );
+		CHECK( bli_func_get_dt( dts[j], f_new ) ==
+		       bli_func_get_dt( dts[j], f_ref ),
+		       "an unmodified ukr slot changed" );
+	}
+
+	static const bszid_t bss[] =
+	{
+		BLIS_KR, BLIS_MR, BLIS_NR, BLIS_MC, BLIS_KC, BLIS_NC,
+		BLIS_BBM, BLIS_BBN, BLIS_M2, BLIS_N2, BLIS_AF, BLIS_DF, BLIS_XF,
+		BLIS_MT, BLIS_NT, BLIS_KT,
+		BLIS_KR_SUP, BLIS_MR_SUP, BLIS_NR_SUP,
+		BLIS_MC_SUP, BLIS_KC_SUP, BLIS_NC_SUP,
+	};
+	for ( size_t i = 0; i < sizeof( bss )/sizeof( bss[0] ); ++i )
+	for ( size_t j = 0; j < sizeof( dts ) / sizeof( dts[0] ); ++j )
+	{
+		if ( dts[j] == BLIS_DOUBLE &&
+		     ( bss[i] == BLIS_MR || bss[i] == BLIS_NR ) ) continue;
+		CHECK( bli_cntx_get_blksz_def_dt( dts[j], bss[i], cntx ) ==
+		       bli_cntx_get_blksz_def_dt( dts[j], bss[i], &ref ) &&
+		       bli_cntx_get_blksz_max_dt( dts[j], bss[i], cntx ) ==
+		       bli_cntx_get_blksz_max_dt( dts[j], bss[i], &ref ),
+		       "an unmodified blocksize changed" );
+	}
+
+	bli_cntx_free( &ref );
+
+	// Public dispatch probe: wrap the live double ukr, run a nontrivial
+	// public gemm, then restore the original pointer before returning.
+	cntx_t* mcntx = ( cntx_t* )cntx;
+	saved_dgemm_ukr = ( gemm_ukr_ft )dgemm_ukr;
+	dgemm_ukr_calls = 0;
+	bli_cntx_set_ukr_dt( ( void_fp )counting_dgemm_ukr, BLIS_DOUBLE,
+	                     BLIS_GEMM_UKR, mcntx );
+
+	{
+		double a[17*23], b[23*19], c[17*19];
+		rng_seed( 7u );
+		for ( size_t i = 0; i < sizeof( a )/sizeof( a[0] ); ++i ) a[i] = rng_val();
+		for ( size_t i = 0; i < sizeof( b )/sizeof( b[0] ); ++i ) b[i] = rng_val();
+		for ( size_t i = 0; i < sizeof( c )/sizeof( c[0] ); ++i ) c[i] = rng_val();
+
+		cblas_dgemm( CblasColMajor, CblasNoTrans, CblasNoTrans,
+		             17, 19, 23, 1.0, a, 17, b, 23, 0.0, c, 17 );
+
+		CHECK( dgemm_ukr_calls > 0,
+		       "public cblas_dgemm did not reach the double ukr" );
+	}
+
+	bli_cntx_set_ukr_dt( ( void_fp )saved_dgemm_ukr, BLIS_DOUBLE,
+	                     BLIS_GEMM_UKR, mcntx );
+}
+
+#endif // BLIS_KERNELS_WASM32
+
 int main( void )
 {
 	bli_init();
@@ -844,6 +979,10 @@ int main( void )
 	test_cblas_gemm();
 	test_cblas_trsm();
 	test_cblas_zgemm();
+
+#ifdef BLIS_KERNELS_WASM32
+	test_dispatch( cntx );
+#endif
 
 	printf( "test-dgemm: %lu checks, %lu failures\n", n_check, n_fail );
 
