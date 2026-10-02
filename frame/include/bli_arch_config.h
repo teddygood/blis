@@ -184,6 +184,12 @@ INSERT_GENTCONF
 #include "bli_family_sifive_x280.h"
 #endif
 
+// -- WebAssembly --
+
+#ifdef BLIS_FAMILY_WASM32
+#include "bli_family_wasm32.h"
+#endif
+
 // -- Generic --
 
 #ifdef BLIS_FAMILY_GENERIC
@@ -279,6 +285,12 @@ INSERT_GENTCONF
 
 #ifdef BLIS_KERNELS_SIFIVE_X280
 #include "bli_kernels_sifive_x280.h"
+#endif
+
+// -- WebAssembly --
+
+#ifdef BLIS_KERNELS_WASM32
+#include "bli_kernels_wasm32.h"
 #endif
 
 
