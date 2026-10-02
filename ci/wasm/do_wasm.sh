@@ -173,4 +173,9 @@ for probe in test-f77-abi test-f77-abi-scipy; do
 	fi
 done
 
+# Contract test for the double-precision gemm microkernel and the public
+# entry points that reach it, against the archive that was just built.
+run_wasm_test test-dgemm -O2 -msimd128 -Iinclude/wasm32 \
+	ci/wasm/test-dgemm.c lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
+
 log "WASM testsuite passed; artifacts in $ARTIFACTS_DIR"
