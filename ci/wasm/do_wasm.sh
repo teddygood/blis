@@ -117,4 +117,24 @@ fi
 
 ci/wasm/check-testsuite-output.sh "$TESTSUITE_OUT"
 
+# Build and run the double-precision gemm microkernel contract test
+# against the archive that was just produced.
+TEST_DGEMM_BIN="test-dgemm.js"
+
+log "compiling ci/wasm/test-dgemm.c"
+if ! emcc -O2 -msimd128 -Iinclude/wasm32 \
+	ci/wasm/test-dgemm.c lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1 \
+	-o "$ARTIFACTS_DIR/$TEST_DGEMM_BIN" > "$ARTIFACTS_DIR/test-dgemm.build.log" 2>&1; then
+	tail -n 40 "$ARTIFACTS_DIR/test-dgemm.build.log" >&2
+	die "test-dgemm compile failed; see $ARTIFACTS_DIR/test-dgemm.build.log"
+fi
+
+log "running $TEST_DGEMM_BIN under $NODE"
+if ! "$NODE" "$ARTIFACTS_DIR/$TEST_DGEMM_BIN" \
+	> "$ARTIFACTS_DIR/test-dgemm.log" 2>&1; then
+	tail -n 40 "$ARTIFACTS_DIR/test-dgemm.log" >&2
+	die "test-dgemm exited nonzero; see $ARTIFACTS_DIR/test-dgemm.log"
+fi
+cat "$ARTIFACTS_DIR/test-dgemm.log"
+
 log "WASM testsuite passed; artifacts in $ARTIFACTS_DIR"
