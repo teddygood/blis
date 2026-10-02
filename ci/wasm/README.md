@@ -31,6 +31,11 @@ Logs (`configure.log`, `build.log`, `link.log`), `output.testsuite`, and
 `versions.txt` land in `wasm-artifacts/` and are uploaded by the workflow
 on success and on failure.
 
+After the testsuite, `do_wasm.sh` compiles `ci/wasm/test-dgemm.c` against
+the built archive and runs it under the same `NODE`; it is a deterministic
+contract test for the double-precision gemm microkernel and its public
+CBLAS callers, logging to `test-dgemm.log`.
+
 # semicolon-lapack integration (`do_lapack.sh`)
 
 `do_lapack.sh` builds the pinned CMocka test suite of
