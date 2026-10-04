@@ -134,4 +134,16 @@ if ! "$NODE" "$ARTIFACTS_DIR/$TEST_DGEMM_BIN" \
 fi
 cat "$ARTIFACTS_DIR/test-dgemm.log"
 
+
+for kernel in sgemm; do
+log "compiling and running test-$kernel"
+emcc -O2 -msimd128 -Iinclude/wasm32 \
+"ci/wasm/test-$kernel.c" lib/wasm32/libblis.a -lm \
+-sALLOW_MEMORY_GROWTH=1 -o "$ARTIFACTS_DIR/test-$kernel.js" \
+> "$ARTIFACTS_DIR/test-$kernel.build.log" 2>&1
+"$NODE" "$ARTIFACTS_DIR/test-$kernel.js" \
+> "$ARTIFACTS_DIR/test-$kernel.log" 2>&1
+cat "$ARTIFACTS_DIR/test-$kernel.log"
+done
+
 log "WASM testsuite passed; artifacts in $ARTIFACTS_DIR"
