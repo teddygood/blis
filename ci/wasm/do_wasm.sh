@@ -134,16 +134,25 @@ if ! "$NODE" "$ARTIFACTS_DIR/$TEST_DGEMM_BIN" \
 fi
 cat "$ARTIFACTS_DIR/test-dgemm.log"
 
-
 for kernel in sgemm cgemm zgemm; do
-log "compiling and running test-$kernel"
-emcc -O2 -msimd128 -Iinclude/wasm32 \
-"ci/wasm/test-$kernel.c" lib/wasm32/libblis.a -lm \
--sALLOW_MEMORY_GROWTH=1 -o "$ARTIFACTS_DIR/test-$kernel.js" \
-> "$ARTIFACTS_DIR/test-$kernel.build.log" 2>&1
-"$NODE" "$ARTIFACTS_DIR/test-$kernel.js" \
-> "$ARTIFACTS_DIR/test-$kernel.log" 2>&1
-cat "$ARTIFACTS_DIR/test-$kernel.log"
+	log "compiling and running test-$kernel"
+	emcc -O2 -msimd128 -Iinclude/wasm32 \
+		"ci/wasm/test-$kernel.c" lib/wasm32/libblis.a -lm \
+		-sALLOW_MEMORY_GROWTH=1 -o "$ARTIFACTS_DIR/test-$kernel.js" \
+		> "$ARTIFACTS_DIR/test-$kernel.build.log" 2>&1
+	"$NODE" "$ARTIFACTS_DIR/test-$kernel.js" \
+		> "$ARTIFACTS_DIR/test-$kernel.log" 2>&1
+	cat "$ARTIFACTS_DIR/test-$kernel.log"
+
+	emcc -O1 -g -msimd128 -fsanitize=address -Iinclude/wasm32 \
+		"ci/wasm/test-$kernel.c" \
+		kernels/wasm32/3/bli_"$kernel"_wasm32_simd128_*.c \
+		lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1 \
+		-o "$ARTIFACTS_DIR/test-$kernel-asan.js" \
+		> "$ARTIFACTS_DIR/test-$kernel-asan.build.log" 2>&1
+	"$NODE" "$ARTIFACTS_DIR/test-$kernel-asan.js" \
+		> "$ARTIFACTS_DIR/test-$kernel-asan.log" 2>&1
+	cat "$ARTIFACTS_DIR/test-$kernel-asan.log"
 done
 
 log "WASM testsuite passed; artifacts in $ARTIFACTS_DIR"
