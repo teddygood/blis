@@ -135,7 +135,7 @@ fi
 cat "$ARTIFACTS_DIR/test-dgemm.log"
 
 
-for kernel in sgemm; do
+for kernel in sgemm cgemm; do
 log "compiling and running test-$kernel"
 emcc -O2 -msimd128 -Iinclude/wasm32 \
 "ci/wasm/test-$kernel.c" lib/wasm32/libblis.a -lm \
