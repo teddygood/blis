@@ -34,3 +34,4 @@
 
 GEMM_UKR_PROT( double, d, gemm_wasm32_simd128_4x4 )
 GEMM_UKR_PROT( float, s, gemm_wasm32_simd128_4x4 )
+GEMM_UKR_PROT( scomplex, c, gemm_wasm32_simd128_4x2 )

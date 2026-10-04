@@ -911,7 +911,8 @@ static void test_dispatch( const cntx_t* cntx )
 	for ( size_t j = 0; j < sizeof( dts ) / sizeof( dts[0] ); ++j )
 	{
 		if ( ukrs[i] == BLIS_GEMM_UKR &&
-		     ( dts[j] == BLIS_DOUBLE || dts[j] == BLIS_FLOAT ) ) continue;
+		     ( dts[j] == BLIS_DOUBLE || dts[j] == BLIS_FLOAT ||
+		       dts[j] == BLIS_SCOMPLEX ) ) continue;
 		const func_t* f_new = bli_cntx_get_ukrs( ukrs[i], cntx );
 		const func_t* f_ref = bli_cntx_get_ukrs( ukrs[i], &ref );
 		CHECK( bli_func_get_dt( dts[j], f_new ) ==
@@ -930,7 +931,8 @@ static void test_dispatch( const cntx_t* cntx )
 	for ( size_t i = 0; i < sizeof( bss )/sizeof( bss[0] ); ++i )
 	for ( size_t j = 0; j < sizeof( dts ) / sizeof( dts[0] ); ++j )
 	{
-		if ( ( dts[j] == BLIS_DOUBLE || dts[j] == BLIS_FLOAT ) &&
+		if ( ( dts[j] == BLIS_DOUBLE || dts[j] == BLIS_FLOAT ||
+		       dts[j] == BLIS_SCOMPLEX ) &&
 		     ( bss[i] == BLIS_MR || bss[i] == BLIS_NR ) ) continue;
 		CHECK( bli_cntx_get_blksz_def_dt( dts[j], bss[i], cntx ) ==
 		       bli_cntx_get_blksz_def_dt( dts[j], bss[i], &ref ) &&
