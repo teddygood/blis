@@ -68,6 +68,12 @@ int bli_ind_init( void )
 
 	if ( c_is_ref && !s_is_ref ) bli_ind_enable_dt( BLIS_1M, BLIS_SCOMPLEX );
 	if ( z_is_ref && !d_is_ref ) bli_ind_enable_dt( BLIS_1M, BLIS_DCOMPLEX );
+#ifdef BLIS_CONFIG_WASM32
+	// Prefer the real SIMD kernels through 1m on wasm32.
+	if ( !s_is_ref ) bli_ind_enable_dt( BLIS_1M, BLIS_SCOMPLEX );
+	if ( !d_is_ref ) bli_ind_enable_dt( BLIS_1M, BLIS_DCOMPLEX );
+#endif
+
 
 	return 0;
 }
