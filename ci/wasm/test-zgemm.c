@@ -32,7 +32,16 @@
 
 */
 
-GEMM_UKR_PROT( double, d, gemm_wasm32_simd128_4x4 )
-GEMM_UKR_PROT( float, s, gemm_wasm32_simd128_4x4 )
-GEMM_UKR_PROT( scomplex, c, gemm_wasm32_simd128_4x2 )
-GEMM_UKR_PROT( dcomplex, z, gemm_wasm32_simd128_2x2 )
+#include "blis.h"
+typedef dcomplex test_type;
+typedef double test_real;
+#define TEST_DT BLIS_DCOMPLEX
+#define TEST_COMPLEX 1
+#define TEST_MR 2
+#define TEST_NR 2
+#define TEST_EPS DBL_EPSILON
+#define TEST_KERNEL bli_zgemm_wasm32_simd128_2x2
+#define TEST_NAME "test-zgemm"
+#define TEST_CALL(order, ta, tb, m, n, k, alpha, a, lda, b, ldb, beta, c, ldc) \
+	cblas_zgemm( order, ta, tb, m, n, k, &alpha, a, lda, b, ldb, &beta, c, ldc )
+#include "test-gemm.h"
