@@ -33,48 +33,15 @@
 */
 
 #include "blis.h"
-
-void bli_cntx_init_wasm32( cntx_t* cntx )
-{
-	// Begin with the reference context so that every unregistered entry
-	// keeps its reference implementation.
-	bli_cntx_init_wasm32_ref( cntx );
-
-	// Register kernels independently of the kernel-set vector flags.
-	bli_cntx_set_ukrs
-	(
-	  cntx,
-
-	  BLIS_GEMM_UKR, BLIS_FLOAT,  bli_sgemm_wasm32_simd128_4x4,
-	  BLIS_GEMM_UKR, BLIS_DOUBLE, bli_dgemm_wasm32_simd128_4x4,
-	  BLIS_GEMM_UKR, BLIS_SCOMPLEX, bli_cgemm_wasm32_simd128_4x2,
-
-	  BLIS_VA_END
-	);
-
-	bli_cntx_set_ukr_prefs
-	(
-	  cntx,
-
-	  BLIS_GEMM_UKR_ROW_PREF, BLIS_FLOAT,  TRUE,
-	  BLIS_GEMM_UKR_ROW_PREF, BLIS_DOUBLE, TRUE,
-	  BLIS_GEMM_UKR_ROW_PREF, BLIS_SCOMPLEX, TRUE,
-
-	  BLIS_VA_END
-	);
-
-	// Match the register and packing sizes to the kernels.
-	blksz_t mr, nr;
-	bli_blksz_init_easy( &mr, 4, 4, 4, -1 );
-	bli_blksz_init_easy( &nr, 4, 4, 2, -1 );
-
-	bli_cntx_set_blkszs
-	(
-	  cntx,
-
-	  BLIS_MR, &mr, BLIS_MR,
-	  BLIS_NR, &nr, BLIS_NR,
-
-	  BLIS_VA_END
-	);
-}
+typedef scomplex test_type;
+typedef float test_real;
+#define TEST_DT BLIS_SCOMPLEX
+#define TEST_COMPLEX 1
+#define TEST_MR 4
+#define TEST_NR 2
+#define TEST_EPS FLT_EPSILON
+#define TEST_KERNEL bli_cgemm_wasm32_simd128_4x2
+#define TEST_NAME "test-cgemm"
+#define TEST_CALL(order, ta, tb, m, n, k, alpha, a, lda, b, ldb, beta, c, ldc) \
+	cblas_cgemm( order, ta, tb, m, n, k, &alpha, a, lda, b, ldb, &beta, c, ldc )
+#include "test-gemm.h"
