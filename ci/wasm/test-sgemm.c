@@ -32,5 +32,14 @@
 
 */
 
-GEMM_UKR_PROT( double, d, gemm_wasm32_simd128_4x4 )
-GEMM_UKR_PROT( float, s, gemm_wasm32_simd128_4x4 )
+typedef float test_type;
+typedef float test_real;
+#define TEST_DT BLIS_FLOAT
+#define TEST_COMPLEX 0
+#define TEST_MR 4
+#define TEST_NR 4
+#define TEST_EPS FLT_EPSILON
+#define TEST_KERNEL bli_sgemm_wasm32_simd128_4x4
+#define TEST_NAME "test-sgemm"
+#define TEST_CALL cblas_sgemm
+#include "test-gemm.h"
