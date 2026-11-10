@@ -27,6 +27,25 @@ JOBS="${JOBS:-$(nproc)}"
 log() { echo "$script_name: $*"; }
 die() { echo "$script_name: error: $*" >&2; exit 1; }
 
+# run_wasm_test <name> <emcc arguments...>: link $ARTIFACTS_DIR/<name>.js,
+# run it under $NODE and print its output. A failing step prints the end
+# of its log before stopping.
+run_wasm_test() {
+	local name=$1
+	shift
+	log "compiling $name"
+	if ! emcc "$@" -o "$ARTIFACTS_DIR/$name.js" > "$ARTIFACTS_DIR/$name.build.log" 2>&1; then
+		tail -n 40 "$ARTIFACTS_DIR/$name.build.log" >&2
+		die "$name failed to build; see $ARTIFACTS_DIR/$name.build.log"
+	fi
+	log "running $name under $NODE"
+	if ! "$NODE" "$ARTIFACTS_DIR/$name.js" > "$ARTIFACTS_DIR/$name.log" 2>&1; then
+		tail -n 40 "$ARTIFACTS_DIR/$name.log" >&2
+		die "$name exited nonzero; see $ARTIFACTS_DIR/$name.log"
+	fi
+	cat "$ARTIFACTS_DIR/$name.log"
+}
+
 mkdir -p "$ARTIFACTS_DIR"
 
 if [ -n "${EMSDK:-}" ]; then
@@ -127,5 +146,31 @@ if [ "$run_status" -ne 0 ]; then
 fi
 
 ci/wasm/check-testsuite-output.sh "$TESTSUITE_OUT"
+
+# Call the Fortran-77 BLAS symbols with the prototypes an external caller
+# such as SciPy uses. wasm-ld only warns about a signature mismatch and
+# turns the call into a trap, so the link must treat warnings as errors.
+# test-f77-abi.c checks results for a subset of routines;
+# test-f77-abi-scipy.c only links a direct call to every BLAS routine
+# that SciPy declares.
+F77_ABI_FLAGS=( -O2 lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
+	'-Wl,--fatal-warnings' )
+run_wasm_test test-f77-abi ci/wasm/test-f77-abi.c "${F77_ABI_FLAGS[@]}"
+run_wasm_test test-f77-abi-scipy ci/wasm/test-f77-abi-scipy.c "${F77_ABI_FLAGS[@]}"
+
+# Negative controls: the same links with one deliberately wrong prototype
+# must fail, or the probes above could not detect a mismatch.
+for probe in test-f77-abi test-f77-abi-scipy; do
+	log "checking that a mismatched F77 prototype in $probe.c fails the link"
+	neg_log="$ARTIFACTS_DIR/$probe-negative.build.log"
+	if emcc -DF77_ABI_NEGATIVE_CONTROL "ci/wasm/$probe.c" "${F77_ABI_FLAGS[@]}" \
+		-o "$ARTIFACTS_DIR/$probe-negative.js" > "$neg_log" 2>&1; then
+		die "a mismatched F77 prototype in $probe.c linked cleanly; see $neg_log"
+	fi
+	if ! grep -q 'signature mismatch' "$neg_log"; then
+		tail -n 40 "$neg_log" >&2
+		die "the $probe negative-control link failed for an unexpected reason; see $neg_log"
+	fi
+done
 
 log "WASM testsuite passed; artifacts in $ARTIFACTS_DIR"
