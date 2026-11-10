@@ -948,6 +948,17 @@ static void test_dispatch( const cntx_t* cntx )
 	CHECK( bli_ind_oper_find_avail( BLIS_GEMM, BLIS_DCOMPLEX ) == BLIS_1M,
 	       "double-complex gemm does not default to 1m" );
 
+	CHECK( bli_cntx_get_ukr_dt( BLIS_FLOAT,  BLIS_DOTV_KER, cntx ) ==
+	       ( void_fp )bli_sdotv_wasm32_simd128 &&
+	       bli_cntx_get_ukr_dt( BLIS_DOUBLE, BLIS_DOTV_KER, cntx ) ==
+	       ( void_fp )bli_ddotv_wasm32_simd128,
+	       "real dotv kernels are not the wasm32 simd128 kernels" );
+	CHECK( bli_cntx_get_ukr_dt( BLIS_FLOAT,  BLIS_AXPYF_KER, cntx ) ==
+	       ( void_fp )bli_saxpyf_wasm32_simd128_8 &&
+	       bli_cntx_get_ukr_dt( BLIS_DOUBLE, BLIS_AXPYF_KER, cntx ) ==
+	       ( void_fp )bli_daxpyf_wasm32_simd128_8,
+	       "real axpyf kernels are not the wasm32 simd128 kernels" );
+
 	// Every other kernel slot, and every blocksize, must match a fresh
 	// reference context for this architecture. The kernel-defs header
 	// gives the reference kernels the same register blocksizes as the
@@ -957,6 +968,12 @@ static void test_dispatch( const cntx_t* cntx )
 
 	static const kerid_t ukrs[] =
 	{
+		BLIS_ADDV_KER, BLIS_AMAXV_KER, BLIS_AXPBYV_KER, BLIS_AXPYV_KER,
+		BLIS_COPYV_KER, BLIS_DOTV_KER, BLIS_DOTXV_KER, BLIS_INVERTV_KER,
+		BLIS_INVSCALV_KER, BLIS_SCALV_KER, BLIS_SCAL2V_KER, BLIS_SETV_KER,
+		BLIS_SUBV_KER, BLIS_SWAPV_KER, BLIS_XPBYV_KER,
+		BLIS_AXPY2V_KER, BLIS_DOTAXPYV_KER,
+		BLIS_AXPYF_KER, BLIS_DOTXF_KER, BLIS_DOTXAXPYF_KER,
 		BLIS_GEMM_UKR, BLIS_GEMM1M_UKR,
 		BLIS_GEMMTRSM_L_UKR, BLIS_GEMMTRSM_U_UKR,
 		BLIS_TRSM_L_UKR,     BLIS_TRSM_U_UKR,
@@ -968,7 +985,8 @@ static void test_dispatch( const cntx_t* cntx )
 	for ( size_t i = 0; i < sizeof( ukrs )/sizeof( ukrs[0] ); ++i )
 	for ( size_t j = 0; j < sizeof( dts ) / sizeof( dts[0] ); ++j )
 	{
-		if ( ukrs[i] == BLIS_GEMM_UKR &&
+		if ( ( ukrs[i] == BLIS_GEMM_UKR || ukrs[i] == BLIS_DOTV_KER ||
+		       ukrs[i] == BLIS_AXPYF_KER ) &&
 		     ( dts[j] == BLIS_DOUBLE || dts[j] == BLIS_FLOAT ) ) continue;
 		const func_t* f_new = bli_cntx_get_ukrs( ukrs[i], cntx );
 		const func_t* f_ref = bli_cntx_get_ukrs( ukrs[i], &ref );
