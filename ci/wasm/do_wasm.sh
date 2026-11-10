@@ -178,4 +178,14 @@ done
 run_wasm_test test-dgemm -O2 -msimd128 -Iinclude/wasm32 \
 	ci/wasm/test-dgemm.c lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
 
+# The same test under AddressSanitizer. The test and the kernel source are
+# instrumented (libblis.a is not), so the direct microkernel cases, which
+# pass exact-size buffers, catch out-of-bounds kernel loads and stores.
+# The kernel object precedes the archive so that it replaces the archive's
+# copy.
+run_wasm_test test-dgemm-asan -O1 -g -msimd128 -fsanitize=address \
+	-Iinclude/wasm32 ci/wasm/test-dgemm.c \
+	kernels/wasm32/3/bli_dgemm_wasm32_simd128_4x4.c \
+	lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
+
 log "WASM testsuite passed; artifacts in $ARTIFACTS_DIR"
