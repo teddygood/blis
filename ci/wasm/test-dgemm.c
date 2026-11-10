@@ -889,6 +889,18 @@ static void test_cblas_zgemm( const cntx_t* cntx )
 // must still pass on a pure reference build.
 #ifdef BLIS_KERNELS_WASM32
 
+// Blocksizes that the wasm32 context changes on purpose relative to the
+// reference context. Each one is checked explicitly in test_dispatch().
+static int is_intended_blksz( num_t dt, bszid_t bs )
+{
+#ifndef BLIS_DISABLE_SUP_HANDLING
+	// The float MT threshold routes small single GEMM to the sup handler.
+	if ( dt == BLIS_FLOAT && bs == BLIS_MT ) return 1;
+#endif
+	( void )dt; ( void )bs;
+	return 0;
+}
+
 static void test_dispatch( const cntx_t* cntx )
 {
 	const func_t* gemm_ukrs = bli_cntx_get_ukrs( BLIS_GEMM_UKR, cntx );
@@ -918,6 +930,17 @@ static void test_dispatch( const cntx_t* cntx )
 	       bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_NT, cntx ) == 0 &&
 	       bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_KT, cntx ) == 0,
 	       "double sup thresholds changed" );
+#ifndef BLIS_DISABLE_SUP_HANDLING
+	CHECK( bli_cntx_get_blksz_def_dt( BLIS_FLOAT, BLIS_MT, cntx ) == 129 &&
+	       bli_cntx_get_blksz_max_dt( BLIS_FLOAT, BLIS_MT, cntx ) == 129,
+	       "float MT is not 129/129" );
+	CHECK( bli_cntx_get_l3_sup_handler( BLIS_GEMM, cntx ) ==
+	       ( void_fp )bli_sgemmsup_wasm32_simd128,
+	       "gemm sup handler is not the wasm32 small single handler" );
+	CHECK( bli_cntx_get_l3_sup_handler( BLIS_GEMMT, cntx ) ==
+	       ( void_fp )bli_gemmtsup_wasm32,
+	       "gemmt sup handler is not the wasm32 wrapper" );
+#endif
 
 	// A non-reference real kernel next to the reference dcomplex kernel
 	// makes 1m the default for double-complex level-3 operations, which
@@ -965,6 +988,7 @@ static void test_dispatch( const cntx_t* cntx )
 	for ( size_t i = 0; i < sizeof( bss )/sizeof( bss[0] ); ++i )
 	for ( size_t j = 0; j < sizeof( dts ) / sizeof( dts[0] ); ++j )
 	{
+		if ( is_intended_blksz( dts[j], bss[i] ) ) continue;
 		CHECK( bli_cntx_get_blksz_def_dt( dts[j], bss[i], cntx ) ==
 		       bli_cntx_get_blksz_def_dt( dts[j], bss[i], &ref ) &&
 		       bli_cntx_get_blksz_max_dt( dts[j], bss[i], cntx ) ==

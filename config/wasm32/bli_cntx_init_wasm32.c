@@ -76,4 +76,22 @@ void bli_cntx_init_wasm32( cntx_t* cntx )
 
 	  BLIS_VA_END
 	);
+
+#ifndef BLIS_DISABLE_SUP_HANDLING
+	// Route small single-precision GEMM to the wasm32 sup handler. An MT
+	// threshold of 129 reaches every problem bounded by 128 in all three
+	// dimensions; the handler checks all three bounds and declines the rest.
+	bli_cntx_set_blksz_def_dt( BLIS_FLOAT, BLIS_MT, 129, cntx );
+	bli_cntx_set_blksz_max_dt( BLIS_FLOAT, BLIS_MT, 129, cntx );
+	bli_cntx_set_l3_sup_handler
+	(
+	  BLIS_GEMM, ( void_fp )bli_sgemmsup_wasm32_simd128, cntx
+	);
+	// The threshold is shared with GEMMT. This wrapper keeps float GEMMT on
+	// the conventional path and the other datatypes on bli_gemmtsup_ref().
+	bli_cntx_set_l3_sup_handler
+	(
+	  BLIS_GEMMT, ( void_fp )bli_gemmtsup_wasm32, cntx
+	);
+#endif
 }
