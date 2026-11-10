@@ -38,13 +38,14 @@
 
 // -- REGISTER BLOCK SIZES (FOR REFERENCE KERNELS) ----------------------------
 
-// The wasm32 single- and double-precision gemm microkernels are 4x4; the
-// reference kernels must step through packed panels at the same strides
-// that the registered kernels and the runtime context use.
+// The wasm32 single-precision gemm microkernel is 4x8 and the
+// double-precision one is 4x4; the reference kernels must step through
+// packed panels at the same strides that the registered kernels and the
+// runtime context use.
 #define BLIS_MR_s   4
 #define BLIS_MR_d   4
 
-#define BLIS_NR_s   4
+#define BLIS_NR_s   8
 #define BLIS_NR_d   4
 
 //#endif

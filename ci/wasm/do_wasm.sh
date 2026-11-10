@@ -193,7 +193,7 @@ run_wasm_test test-sgemm -O2 -msimd128 -Iinclude/wasm32 \
 	ci/wasm/test-sgemm.c lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
 run_wasm_test test-sgemm-asan -O1 -g -msimd128 -fsanitize=address \
 	-Iinclude/wasm32 ci/wasm/test-sgemm.c \
-	kernels/wasm32/3/bli_sgemm_wasm32_simd128_4x4.c \
+	kernels/wasm32/3/bli_sgemm_wasm32_simd128_4x8.c \
 	lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
 
 log "WASM testsuite passed; artifacts in $ARTIFACTS_DIR"
