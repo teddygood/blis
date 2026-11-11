@@ -225,9 +225,15 @@ run_wasm_test test-l1f-asan -O1 -g -msimd128 -fsanitize=address \
 	lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
 
 # Contract tests for the trsm microkernels of both real precisions and the
-# public cblas_?trsm calls that reach them through gemmtrsm.
+# public cblas_?trsm calls that reach them through gemmtrsm. Each optimized
+# trsm kernel also runs instrumented under AddressSanitizer, like the gemm
+# kernels above.
 run_wasm_test test-dtrsm -O2 -msimd128 -Iinclude/wasm32 \
 	ci/wasm/test-dtrsm.c lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
+run_wasm_test test-dtrsm-asan -O1 -g -msimd128 -fsanitize=address \
+	-Iinclude/wasm32 ci/wasm/test-dtrsm.c \
+	kernels/wasm32/3/bli_dtrsm_wasm32_simd128_4x4.c \
+	lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
 run_wasm_test test-strsm -O2 -msimd128 -Iinclude/wasm32 \
 	ci/wasm/test-strsm.c lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
 

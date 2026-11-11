@@ -35,6 +35,9 @@
 GEMM_UKR_PROT( double, d, gemm_wasm32_simd128_4x4 )
 GEMM_UKR_PROT( float, s, gemm_wasm32_simd128_4x8 )
 
+TRSM_UKR_PROT( double, d, trsm_l_wasm32_simd128_4x4 )
+TRSM_UKR_PROT( double, d, trsm_u_wasm32_simd128_4x4 )
+
 DOTV_KER_PROT( double, d, dotv_wasm32_simd128 )
 DOTV_KER_PROT( float, s, dotv_wasm32_simd128 )
 

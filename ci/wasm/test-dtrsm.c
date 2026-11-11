@@ -46,4 +46,8 @@ typedef uint64_t test_bits;
 #define TEST_MARK 0x7ff4a5a5a5a5a5a5ULL
 #define TEST_NAME "test-dtrsm"
 #define TEST_TRSM cblas_dtrsm
+#define TEST_KERNEL_L bli_dtrsm_l_wasm32_simd128_4x4
+#define TEST_KERNEL_U bli_dtrsm_u_wasm32_simd128_4x4
+#define TEST_MR   4
+#define TEST_NR   4
 #include "test-trsm.h"
