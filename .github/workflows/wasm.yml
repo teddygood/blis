@@ -1,0 +1,66 @@
+name: wasm
+
+on:
+  push:
+    branches:
+      - master
+      - pyodide-2.1
+      - pyodide-2.1-2026_5
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Superseded pull request runs are cancelled; branch pushes always finish.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  testsuite:
+    name: wasm32 testsuite (emsdk ${{ matrix.emsdk }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        emsdk:
+          - '5.0.3'
+          - '6.0.5'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+
+      - name: Install Emscripten ${{ matrix.emsdk }}
+        # emsdk lives outside the checkout, like ci/do_riscv.sh's
+        # toolchain dir; cloning the tag pins installer and toolchain.
+        env:
+          EMSDK_VERSION: ${{ matrix.emsdk }}
+        run: |
+          git clone --depth 1 --branch "$EMSDK_VERSION" \
+            https://github.com/emscripten-core/emsdk.git ../emsdk
+          ../emsdk/emsdk install "$EMSDK_VERSION"
+          ../emsdk/emsdk activate "$EMSDK_VERSION"
+
+      - name: Build BLIS and run the fast testsuite under Node
+        env:
+          EMSDK: ${{ github.workspace }}/../emsdk
+        # Pass the setup-node Node 24 explicitly; do_wasm.sh would
+        # otherwise default to emsdk's bundled node ($EMSDK_NODE).
+        run: NODE="$(command -v node)" ci/wasm/do_wasm.sh
+
+      - name: Upload logs and test output
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: wasm-testsuite-emsdk-${{ matrix.emsdk }}
+          path: wasm-artifacts/
+          if-no-files-found: warn
+          retention-days: 14
