@@ -225,6 +225,7 @@ run_wasm_test test-l1f-asan -O1 -g -msimd128 -fsanitize=address \
 	kernels/wasm32/1/bli_dotxv_wasm32_simd128.c \
 	kernels/wasm32/1f/bli_axpyf_wasm32_simd128.c \
 	kernels/wasm32/1f/bli_dotxf_wasm32_simd128.c \
+	kernels/wasm32/1f/bli_dotxaxpyf_wasm32_simd128.c \
 	lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
 
 # Contract tests for the trsm microkernels of both real precisions and the
