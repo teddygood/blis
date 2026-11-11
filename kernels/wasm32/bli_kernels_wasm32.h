@@ -40,8 +40,14 @@ TRSM_UKR_PROT( double, d, trsm_u_wasm32_simd128_4x4 )
 TRSM_UKR_PROT( float, s, trsm_l_wasm32_simd128_4x8 )
 TRSM_UKR_PROT( float, s, trsm_u_wasm32_simd128_4x8 )
 
+AXPYV_KER_PROT( double, d, axpyv_wasm32_simd128 )
+AXPYV_KER_PROT( float, s, axpyv_wasm32_simd128 )
+
 DOTV_KER_PROT( double, d, dotv_wasm32_simd128 )
 DOTV_KER_PROT( float, s, dotv_wasm32_simd128 )
+
+DOTXV_KER_PROT( double, d, dotxv_wasm32_simd128 )
+DOTXV_KER_PROT( float, s, dotxv_wasm32_simd128 )
 
 AXPYF_KER_PROT( double, d, axpyf_wasm32_simd128_8 )
 AXPYF_KER_PROT( float, s, axpyf_wasm32_simd128_8 )

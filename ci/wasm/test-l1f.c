@@ -32,9 +32,10 @@
 
 */
 
-// Contract test for the wasm32 real dotv and axpyf kernels. Every case runs
-// the SIMD kernel and the reference kernel of this configuration on the same
-// operands and compares the results:
+// Contract test for the wasm32 real level-1v and level-1f kernels: dotv,
+// axpyv, dotxv and axpyf. Every case runs the SIMD kernel and the reference
+// kernel of this configuration on the same operands and compares the
+// results:
 //  - exactly, for inputs that are small multiples of 1/4, whose products and
 //    sums are exact in both precisions at these lengths;
 //  - within a rounding-error bound, for pseudo-random inputs;
@@ -65,6 +66,10 @@
 // call for the cases they do not handle.
 DOTV_KER_PROT( float,  s, dotv_wasm32_ref )
 DOTV_KER_PROT( double, d, dotv_wasm32_ref )
+AXPYV_KER_PROT( float,  s, axpyv_wasm32_ref )
+AXPYV_KER_PROT( double, d, axpyv_wasm32_ref )
+DOTXV_KER_PROT( float,  s, dotxv_wasm32_ref )
+DOTXV_KER_PROT( double, d, dotxv_wasm32_ref )
 AXPYF_KER_PROT( float,  s, axpyf_wasm32_ref )
 AXPYF_KER_PROT( double, d, axpyf_wasm32_ref )
 
@@ -141,6 +146,8 @@ typedef struct
 	size_t           size;
 	double           eps;
 	dotv_ker_ft      dotv,      dotv_ref;
+	axpyv_ker_ft     axpyv,     axpyv_ref;
+	dotxv_ker_ft     dotxv,     dotxv_ref;
 	axpyf_ker_ft     axpyf,     axpyf_ref;
 	dim_t            long_m[3];   // around the axpyf four-column threshold
 } type_t;
@@ -381,6 +388,122 @@ static void dotv_case( const type_t* t, dim_t n, inc_t incx, inc_t incy,
 	free( x_saved ); free( y_saved ); free( x.alloc ); free( y.alloc );
 }
 
+// -- axpyv ----------------------------------------------------------------------
+
+static void axpyv_case( const type_t* t, dim_t n, inc_t incx, inc_t incy,
+                        conj_t conjx, double alpha, int mode, int skew )
+{
+	char label[160];
+	snprintf( label, sizeof( label ), "%saxpyv n=%ld incx=%ld incy=%ld conj=%d alpha=%g mode=%d skew=%d",
+	          t->name, ( long )n, ( long )incx, ( long )incy, conjx == BLIS_CONJUGATE,
+	          alpha, mode, skew );
+
+	vec_t x;
+	out_t y;
+	vec_init( &x, t, n, incx, skew );
+	out_init( &y, t, n, incy, !skew );
+	alpha = rnd( t, alpha );
+	for ( dim_t i = 0; i < n; ++i )
+	{
+		put( t, x.first, i*incx, value( mode ) );
+		out_set( t, &y, i, value( mode ) );
+	}
+	if ( is_special( mode ) && n > 0 )
+	{
+		const dim_t at = ( dim_t )( rng_next() % ( uint32_t )n );
+		if ( rng_next() % 2 ) put( t, x.first, at*incx, special( mode, ( int )at ) );
+		else                  out_set( t, &y, at, special( mode, ( int )at ) );
+	}
+	out_ready( t, &y );
+	unsigned char* x_saved = xmalloc( x.bytes );
+	memcpy( x_saved, x.alloc, x.bytes );
+
+	double alpha_buf = 0; put( t, &alpha_buf, 0, alpha );
+	const cntx_t* cntx = bli_gks_query_cntx();
+	t->axpyv_ref( conjx, n, &alpha_buf, x.first, incx, out_ptr( t, &y, y.want ), incy, cntx );
+	t->axpyv( conjx, n, &alpha_buf, x.first, incx, out_ptr( t, &y, y.got ), incy, cntx );
+	t->axpyv( conjx, n, &alpha_buf, x.first, incx, out_ptr( t, &y, y.tight ), incy, cntx );
+
+	int ok = 1;
+	for ( dim_t i = 0; i < n; ++i )
+	{
+		const double xi = get( t, x.first, i*incx ), yi = out_init_get( t, &y, i );
+		const double b = mode == RANDOM ? 4.0*t->eps*( fabs( yi ) + fabs( alpha*xi ) ) : 0.0;
+		if ( !classes_match( out_get( t, &y, y.got, i ), out_get( t, &y, y.want, i ), b ) ) ok = 0;
+	}
+	CHECK( ok, "axpyv result differs from the reference kernel" );
+	CHECK( out_tight_ok( t, &y ), "axpyv result depends on the memory around y" );
+	CHECK( out_guards_ok( t, &y ), "axpyv wrote outside its output elements" );
+	CHECK( memcmp( x.alloc, x_saved, x.bytes ) == 0, "axpyv modified an input" );
+
+	free( x_saved ); free( x.alloc ); out_free( &y );
+}
+
+// -- dotxv ----------------------------------------------------------------------
+
+static void dotxv_case( const type_t* t, dim_t n, inc_t incx, inc_t incy, conj_t conjx,
+                        conj_t conjy, double alpha, double beta, int mode, int skew )
+{
+	char label[200];
+	snprintf( label, sizeof( label ),
+	          "%sdotxv n=%ld incx=%ld incy=%ld conj=%d%d alpha=%g beta=%g mode=%d skew=%d",
+	          t->name, ( long )n, ( long )incx, ( long )incy, conjx == BLIS_CONJUGATE,
+	          conjy == BLIS_CONJUGATE, alpha, beta, mode, skew );
+
+	vec_t x, y;
+	vec_init( &x, t, n, incx, skew );
+	vec_init( &y, t, n, incy, !skew );
+	alpha = rnd( t, alpha );
+	beta  = rnd( t, beta );
+	double sumabs = 0;
+	for ( dim_t i = 0; i < n; ++i )
+	{
+		const double xi = value( mode ), yi = value( mode );
+		put( t, x.first, i*incx, xi );
+		put( t, y.first, i*incy, yi );
+		sumabs += fabs( xi*yi );
+	}
+	// rho starts as a NaN when beta is zero, which must clear it.
+	double rho0 = beta == 0.0 ? NAN : rnd( t, value( mode ) );
+	if ( is_special( mode ) )
+	{
+		const dim_t at = n > 0 ? ( dim_t )( rng_next() % ( uint32_t )n ) : 0;
+		switch ( n > 0 ? rng_next() % 3 : 2 )
+		{
+			case 0:  put( t, x.first, at*incx, special( mode, ( int )at ) ); break;
+			case 1:  put( t, y.first, at*incy, special( mode, ( int )at ) ); break;
+			default: rho0 = special( mode, ( int )at ); break;
+		}
+	}
+	unsigned char* x_saved = xmalloc( x.bytes );
+	unsigned char* y_saved = xmalloc( y.bytes );
+	memcpy( x_saved, x.alloc, x.bytes ); memcpy( y_saved, y.alloc, y.bytes );
+
+	double want_buf[3], got_buf[3];
+	for ( int i = 0; i < 3; ++i ) { want_buf[i] = got_buf[i] = 0; }
+	put( t, want_buf, 0, -7.0 ); put( t, want_buf, 1, rho0 ); put( t, want_buf, 2, -9.0 );
+	put( t, got_buf, 0, -7.0 );  put( t, got_buf, 1, rho0 );  put( t, got_buf, 2, -9.0 );
+	double alpha_buf = 0, beta_buf = 0;
+	put( t, &alpha_buf, 0, alpha ); put( t, &beta_buf, 0, beta );
+	const cntx_t* cntx = bli_gks_query_cntx();
+	t->dotxv_ref( conjx, conjy, n, &alpha_buf, x.first, incx, y.first, incy, &beta_buf,
+	              ( unsigned char* )want_buf + t->size, cntx );
+	t->dotxv( conjx, conjy, n, &alpha_buf, x.first, incx, y.first, incy, &beta_buf,
+	          ( unsigned char* )got_buf + t->size, cntx );
+
+	const double want = get( t, want_buf, 1 ), got = get( t, got_buf, 1 );
+	const double bound = mode == RANDOM
+	                     ? 2.0*( n + 3 )*t->eps*( ( beta == 0.0 ? 0.0 : fabs( beta*rho0 ) ) +
+	                                              fabs( alpha )*sumabs ) : 0.0;
+	CHECK( classes_match( got, want, bound ), "dotxv result differs from the reference kernel" );
+	CHECK( get( t, got_buf, 0 ) == -7.0 && get( t, got_buf, 2 ) == -9.0,
+	       "dotxv wrote outside its output" );
+	CHECK( memcmp( x.alloc, x_saved, x.bytes ) == 0 && memcmp( y.alloc, y_saved, y.bytes ) == 0,
+	       "dotxv modified an input" );
+
+	free( x_saved ); free( y_saved ); free( x.alloc ); free( y.alloc );
+}
+
 // -- axpyf ----------------------------------------------------------------------
 
 static void axpyf_case( const type_t* t, dim_t m, dim_t b_n, inc_t inca, inc_t lda_pad,
@@ -485,11 +608,27 @@ static void test_kernels( const type_t* t )
 		           c ? BLIS_CONJUGATE : BLIS_NO_CONJUGATE,
 		           c ? BLIS_NO_CONJUGATE : BLIS_CONJUGATE, mode, ( l + s ) % 2 );
 
+	// axpyv and dotxv: the same lengths and increments; alpha (and beta)
+	// include the values the kernels treat separately.
+	const double alphas[] = { 0.0, 1.0, -1.0, 0.75 };
+	const double betas[]  = { 0.0, 1.0, -0.5, 0.0 };
+	for ( int l = 0; l < nlens; ++l )
+	for ( int s = 0; s < nincs; ++s )
+	for ( int mode = 0; mode < NUM_MODES; ++mode )
+	for ( int a = 0; a < 4; ++a )
+	{
+		const double alpha = mode == RANDOM && a == 3 ? value( RANDOM ) : alphas[a];
+		const conj_t conj  = ( l + a ) % 2 ? BLIS_CONJUGATE : BLIS_NO_CONJUGATE;
+		const int    skew  = ( l + s + a ) % 2;
+		axpyv_case( t, lens[l], incs[s][0], incs[s][1], conj, alpha, mode, skew );
+		dotxv_case( t, lens[l], incs[s][0], incs[s][1], conj, BLIS_NO_CONJUGATE,
+		            alpha, betas[( a + s ) % 4], mode, skew );
+	}
+
 	// axpyf: the SIMD path needs contiguous columns and a nonzero incy; it
 	// takes any b_n in passes of eight, four, two and one columns. The
 	// other shapes check that the fallback to the reference kernel is exact.
 	for ( int k = 0; k < 3; ++k ) lens[nlens++] = t->long_m[k];
-	const double alphas[] = { 0.0, 1.0, -1.0, 0.75 };
 	static const dim_t axpyf_bn[] = { 7, 6, 5, 4, 3, 2, 1, 0, 9, 12, 13, 16, 17 };
 	for ( int l = 0; l < nlens; ++l )
 	for ( int mode = 0; mode < NUM_MODES; ++mode )
@@ -676,6 +815,26 @@ static void test_public( const type_t* t )
 		CHECK( gemv_ok( t, 0, M, N, 0.75, incx, -0.5, incy ), "cblas gemv result mismatch" );
 	}
 
+	// cblas_?ger reaches axpyv once per column.
+	snprintf( label, sizeof( label ), "%s public ger", t->name );
+	fill_public();
+	double a0[LDA*N];
+	memcpy( a0, a_d, sizeof( a0 ) );
+	install( dt );
+	if ( is_s ) cblas_sger( CblasColMajor, M, N, -0.75f, x_s, 1, y_s, 2, a_s, LDA );
+	else        cblas_dger( CblasColMajor, M, N, -0.75, x_d, 1, y_d, 2, a_d, LDA );
+	uninstall( dt );
+	CHECK( calls_axpyv == N, "cblas ger did not call axpyv once per column" );
+	int ok = 1;
+	for ( int j = 0; j < N; ++j )
+	for ( int i = 0; i < LDA; ++i )
+	{
+		const double w = i < M ? a0[i + j*LDA] - 0.75*x_d[i]*y0_d[2*j] : a0[i + j*LDA];
+		const double g = is_s ? ( double )a_s[i + j*LDA] : a_d[i + j*LDA];
+		if ( g != w ) ok = 0;
+	}
+	CHECK( ok, "cblas ger result mismatch" );
+
 }
 
 int main( void )
@@ -686,6 +845,8 @@ int main( void )
 	static const struct { kerid_t id; void_fp s, d; const char* name; } regs[] =
 	{
 		{ BLIS_DOTV_KER,      ( void_fp )bli_sdotv_wasm32_simd128,      ( void_fp )bli_ddotv_wasm32_simd128,      "dotv" },
+		{ BLIS_AXPYV_KER,     ( void_fp )bli_saxpyv_wasm32_simd128,     ( void_fp )bli_daxpyv_wasm32_simd128,     "axpyv" },
+		{ BLIS_DOTXV_KER,     ( void_fp )bli_sdotxv_wasm32_simd128,     ( void_fp )bli_ddotxv_wasm32_simd128,     "dotxv" },
 		{ BLIS_AXPYF_KER,     ( void_fp )bli_saxpyf_wasm32_simd128_8,   ( void_fp )bli_daxpyf_wasm32_simd128_8,   "axpyf" },
 	};
 	for ( size_t r = 0; r < sizeof( regs )/sizeof( regs[0] ); ++r )
@@ -703,9 +864,13 @@ int main( void )
 	{
 		{ BLIS_FLOAT, "s", sizeof( float ), FLT_EPSILON,
 		  bli_sdotv_wasm32_simd128,      bli_sdotv_wasm32_ref,
+		  bli_saxpyv_wasm32_simd128,     bli_saxpyv_wasm32_ref,
+		  bli_sdotxv_wasm32_simd128,     bli_sdotxv_wasm32_ref,
 		  bli_saxpyf_wasm32_simd128_8,   bli_saxpyf_wasm32_ref, { 1023, 1024, 1029 } },
 		{ BLIS_DOUBLE, "d", sizeof( double ), DBL_EPSILON,
 		  bli_ddotv_wasm32_simd128,      bli_ddotv_wasm32_ref,
+		  bli_daxpyv_wasm32_simd128,     bli_daxpyv_wasm32_ref,
+		  bli_ddotxv_wasm32_simd128,     bli_ddotxv_wasm32_ref,
 		  bli_daxpyf_wasm32_simd128_8,   bli_daxpyf_wasm32_ref, { 511, 512, 515 } },
 	};
 	for ( int t = 0; t < 2; ++t )
