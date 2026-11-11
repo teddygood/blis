@@ -33,17 +33,17 @@
 */
 
 // Contract test for the wasm32 real level-1v and level-1f kernels: dotv,
-// axpyv, dotxv and axpyf. Every case runs the SIMD kernel and the reference
-// kernel of this configuration on the same operands and compares the
-// results:
+// axpyv, dotxv, axpyf and dotxf. Every case runs the SIMD kernel and the
+// reference kernel of this configuration on the same operands and compares
+// the results:
 //  - exactly, for inputs that are small multiples of 1/4, whose products and
 //    sums are exact in both precisions at these lengths;
 //  - within a rounding-error bound, for pseudo-random inputs;
 //  - by class (NaN, +Inf or -Inf) when an input holds a NaN or an infinity.
-// axpyf is also compared with a direct evaluation in double precision that
-// applies every column in order, which the SIMD kernel does for every
-// shape it takes (the reference kernel skips a column whose alpha * chi is
-// zero for most shapes; see the kernel source).
+// The fused kernels are also compared with a direct evaluation in double
+// precision. For axpyf it applies every column in order, which the SIMD
+// kernel does for every shape it takes (the reference kernel skips a column
+// whose alpha * chi is zero for most shapes; see the kernel source).
 // Inputs are allocated with their exact extent, so an AddressSanitizer build
 // catches reads past the end, and must not change. Outputs are surrounded by
 // guard elements, and the elements that a non-unit increment skips, which
@@ -72,6 +72,8 @@ DOTXV_KER_PROT( float,  s, dotxv_wasm32_ref )
 DOTXV_KER_PROT( double, d, dotxv_wasm32_ref )
 AXPYF_KER_PROT( float,  s, axpyf_wasm32_ref )
 AXPYF_KER_PROT( double, d, axpyf_wasm32_ref )
+DOTXF_KER_PROT( float,  s, dotxf_wasm32_ref )
+DOTXF_KER_PROT( double, d, dotxf_wasm32_ref )
 
 // -- result accounting ----------------------------------------------------------
 
@@ -149,6 +151,7 @@ typedef struct
 	axpyv_ker_ft     axpyv,     axpyv_ref;
 	dotxv_ker_ft     dotxv,     dotxv_ref;
 	axpyf_ker_ft     axpyf,     axpyf_ref;
+	dotxf_ker_ft     dotxf,     dotxf_ref;
 	dim_t            long_m[3];   // around the axpyf four-column threshold
 } type_t;
 
@@ -587,6 +590,88 @@ static void axpyf_case( const type_t* t, dim_t m, dim_t b_n, inc_t inca, inc_t l
 	free( a_saved ); free( x_saved ); free( A.alloc ); free( x.alloc ); out_free( &y );
 }
 
+// -- dotxf ----------------------------------------------------------------------
+
+static void dotxf_case( const type_t* t, dim_t m, dim_t b_n, inc_t inca, inc_t lda_pad,
+                        inc_t incx, inc_t incy, conj_t conjat, conj_t conjx,
+                        double alpha, double beta, int mode, int skew )
+{
+	char label[220];
+	snprintf( label, sizeof( label ),
+	          "%sdotxf m=%ld b_n=%ld inca=%ld lda+%ld incx=%ld incy=%ld conj=%d%d alpha=%g beta=%g mode=%d skew=%d",
+	          t->name, ( long )m, ( long )b_n, ( long )inca, ( long )lda_pad, ( long )incx,
+	          ( long )incy, conjat == BLIS_CONJUGATE, conjx == BLIS_CONJUGATE, alpha, beta,
+	          mode, skew );
+
+	// y := beta * y + alpha * A^T x with A m x b_n.
+	mat_t A;
+	vec_t x;
+	out_t y;
+	mat_init( &A, t, m, b_n, inca, lda_pad, skew );
+	vec_init( &x, t, m, incx, !skew );
+	out_init( &y, t, b_n, incy, skew );
+	alpha = rnd( t, alpha );
+	beta  = rnd( t, beta );
+
+	// y starts as NaNs when beta is zero, which must clear them.
+	for ( dim_t j = 0; j < b_n; ++j ) out_set( t, &y, j, beta == 0.0 ? NAN : value( mode ) );
+	for ( dim_t i = 0; i < m; ++i ) put( t, x.first, i*incx, value( mode ) );
+	for ( dim_t j = 0; j < b_n; ++j )
+	for ( dim_t i = 0; i < m; ++i ) mat_put( t, &A, i, j, value( mode ) );
+	if ( is_special( mode ) && m > 0 && b_n > 0 )
+	{
+		const dim_t i = ( dim_t )( rng_next() % ( uint32_t )m );
+		const dim_t j = ( dim_t )( rng_next() % ( uint32_t )b_n );
+		switch ( rng_next() % 3 )
+		{
+			case 0:  mat_put( t, &A, i, j, special( mode, ( int )i ) ); break;
+			case 1:  put( t, x.first, i*incx, special( mode, ( int )i ) ); break;
+			default: out_set( t, &y, j, special( mode, ( int )j ) ); break;
+		}
+	}
+	out_ready( t, &y );
+	unsigned char* a_saved = xmalloc( A.bytes );
+	unsigned char* x_saved = xmalloc( x.bytes );
+	memcpy( a_saved, A.alloc, A.bytes ); memcpy( x_saved, x.alloc, x.bytes );
+
+	double alpha_buf = 0, beta_buf = 0;
+	put( t, &alpha_buf, 0, alpha ); put( t, &beta_buf, 0, beta );
+	const cntx_t* cntx = bli_gks_query_cntx();
+	t->dotxf_ref( conjat, conjx, m, b_n, &alpha_buf, A.a, inca, A.lda, x.first, incx,
+	              &beta_buf, out_ptr( t, &y, y.want ), incy, cntx );
+	t->dotxf( conjat, conjx, m, b_n, &alpha_buf, A.a, inca, A.lda, x.first, incx,
+	          &beta_buf, out_ptr( t, &y, y.got ), incy, cntx );
+	t->dotxf( conjat, conjx, m, b_n, &alpha_buf, A.a, inca, A.lda, x.first, incx,
+	          &beta_buf, out_ptr( t, &y, y.tight ), incy, cntx );
+
+	// With incy == 0 every output is the same element, which the reference
+	// kernel updates once per column; only the comparison with it applies.
+	int ok_ref = 1, ok_direct = 1;
+	for ( dim_t j = 0; j < b_n; ++j )
+	{
+		const double got = out_get( t, &y, y.got, j );
+		const double y0  = out_init_get( t, &y, j );
+		double direct = beta == 0.0 ? 0.0 : beta*y0, sumabs = fabs( direct ), dot = 0;
+		for ( dim_t i = 0; i < m; ++i )
+		{
+			const double p = mat_get( t, &A, i, j )*get( t, x.first, i*incx );
+			dot += p; sumabs += fabs( alpha*p );
+		}
+		if ( m > 0 && alpha != 0.0 ) direct += alpha*dot;
+		const double b = mode == RANDOM ? 2.0*( m + 3 )*t->eps*sumabs : 0.0;
+		if ( !classes_match( got, out_get( t, &y, y.want, j ), b ) ) ok_ref = 0;
+		if ( incy != 0 && !classes_match( got, direct, b ) ) ok_direct = 0;
+	}
+	CHECK( ok_ref, "dotxf result differs from the reference kernel" );
+	CHECK( ok_direct, "dotxf result differs from the direct evaluation" );
+	CHECK( out_tight_ok( t, &y ), "dotxf result depends on the memory around y" );
+	CHECK( out_guards_ok( t, &y ), "dotxf wrote outside its output elements" );
+	CHECK( memcmp( A.alloc, a_saved, A.bytes ) == 0 && memcmp( x.alloc, x_saved, x.bytes ) == 0,
+	       "dotxf modified an input" );
+
+	free( a_saved ); free( x_saved ); free( A.alloc ); free( x.alloc ); out_free( &y );
+}
+
 // -- kernel contracts -------------------------------------------------------------
 
 static void test_kernels( const type_t* t )
@@ -650,6 +735,38 @@ static void test_kernels( const type_t* t )
 		axpyf_case( t, m, 3, 1, 0, 1, 0, conj, conj, alpha, mode, skew );
 		for ( int k = 0; k < 13; ++k )
 			axpyf_case( t, m, axpyf_bn[k], 1, 0, 1, 1, conj, conj, alpha, mode, skew );
+	}
+
+	// dotxf: groups of six (the fusing factor), four, two and one columns,
+	// with unit and strided x and y; contiguous columns and a nonzero incy
+	// for the SIMD path.
+	static const dim_t dotxf_bn[] = { 6, 5, 4, 3, 2, 1, 0, 7, 8, 12, 13 };
+	static const inc_t dotxf_inc[][2] = { { 1, 1 }, { 2, 1 }, { 1, 3 }, { -1, 1 }, { 3, -2 } };
+	static const double dotxf_ab[][2] = { { 1.0, 0.0 }, { 0.75, -0.5 }, { 0.0, 1.0 }, { -1.0, 1.0 } };
+	for ( int l = 0; l < nlens; ++l )
+	for ( int mode = 0; mode < NUM_MODES; ++mode )
+	for ( int s = 0; s < 5; ++s )
+	{
+		const dim_t m = lens[l];
+		const int ab = ( l + s + mode ) % 4;
+		const double alpha = mode == RANDOM && ab == 1 ? value( RANDOM ) : dotxf_ab[ab][0];
+		const double beta  = dotxf_ab[ab][1];
+		const int skew = ( l + s ) % 2;
+		const conj_t conj = ( l + mode ) % 2 ? BLIS_CONJUGATE : BLIS_NO_CONJUGATE;
+		if ( m > 70 && s > 1 ) continue;
+		dotxf_case( t, m, 6, 1, s % 2 ? 2 : 0, dotxf_inc[s][0], dotxf_inc[s][1],
+		            conj, conj, alpha, beta, mode, skew );
+		dotxf_case( t, m, dotxf_bn[( l + s ) % 11], 1, 1, dotxf_inc[s][0], dotxf_inc[s][1],
+		            conj, conj, alpha, beta, mode, skew );
+		if ( m > 40 ) continue;
+		for ( int k = 0; k < 11; ++k )
+			dotxf_case( t, m, dotxf_bn[k], 1, 0, dotxf_inc[s][0], dotxf_inc[s][1],
+			            conj, conj, alpha, beta, mode, skew );
+		if ( s == 0 )
+		{
+			dotxf_case( t, m, 6, 2, 1, 1, 1, conj, conj, alpha, beta, mode, skew );
+			dotxf_case( t, m, 3, 1, 0, 1, 0, conj, conj, alpha, beta, mode, skew );
+		}
 	}
 
 }
@@ -815,6 +932,24 @@ static void test_public( const type_t* t )
 		CHECK( gemv_ok( t, 0, M, N, 0.75, incx, -0.5, incy ), "cblas gemv result mismatch" );
 	}
 
+	// With transposition it reaches dotxf, including the last group of
+	// N % 6 columns, and never falls back to dotxv.
+	for ( int k = 0; k < 4; ++k )
+	{
+		const int incx = gemv_inc[k][0], incy = gemv_inc[k][1];
+		snprintf( label, sizeof( label ), "%s public gemv t incx=%d incy=%d", t->name, incx, incy );
+		fill_public();
+		install( dt );
+		if ( is_s )
+			cblas_sgemv( CblasColMajor, CblasTrans, M, N, 0.75f, a_s, LDA, x_s, incx, -0.5f, y_s, incy );
+		else
+			cblas_dgemv( CblasColMajor, CblasTrans, M, N, 0.75, a_d, LDA, x_d, incx, -0.5, y_d, incy );
+		uninstall( dt );
+		CHECK( calls_dotxf > 0, "cblas gemv^T did not reach the dotxf kernel" );
+		CHECK( calls_dotxv == 0, "cblas gemv^T fell back to the dotxv kernel" );
+		CHECK( gemv_ok( t, 1, M, N, 0.75, incx, -0.5, incy ), "cblas gemv^T result mismatch" );
+	}
+
 	// cblas_?ger reaches axpyv once per column.
 	snprintf( label, sizeof( label ), "%s public ger", t->name );
 	fill_public();
@@ -848,6 +983,7 @@ int main( void )
 		{ BLIS_AXPYV_KER,     ( void_fp )bli_saxpyv_wasm32_simd128,     ( void_fp )bli_daxpyv_wasm32_simd128,     "axpyv" },
 		{ BLIS_DOTXV_KER,     ( void_fp )bli_sdotxv_wasm32_simd128,     ( void_fp )bli_ddotxv_wasm32_simd128,     "dotxv" },
 		{ BLIS_AXPYF_KER,     ( void_fp )bli_saxpyf_wasm32_simd128_8,   ( void_fp )bli_daxpyf_wasm32_simd128_8,   "axpyf" },
+		{ BLIS_DOTXF_KER,     ( void_fp )bli_sdotxf_wasm32_simd128,     ( void_fp )bli_ddotxf_wasm32_simd128,     "dotxf" },
 	};
 	for ( size_t r = 0; r < sizeof( regs )/sizeof( regs[0] ); ++r )
 	{
@@ -856,9 +992,12 @@ int main( void )
 		CHECK( bli_cntx_get_ukr_dt( BLIS_FLOAT,  regs[r].id, cntx ) == regs[r].s &&
 		       bli_cntx_get_ukr_dt( BLIS_DOUBLE, regs[r].id, cntx ) == regs[r].d, what );
 	}
+	// The kernels are tuned for the reference fusing factors.
 	CHECK( bli_cntx_get_blksz_def_dt( BLIS_FLOAT,  BLIS_AF, cntx ) == 8 &&
-	       bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_AF, cntx ) == 8,
-	       "the axpyf fusing factor is not 8" );
+	       bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_AF, cntx ) == 8 &&
+	       bli_cntx_get_blksz_def_dt( BLIS_FLOAT,  BLIS_DF, cntx ) == 6 &&
+	       bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_DF, cntx ) == 6,
+	       "the fusing factors are not 8 and 6" );
 
 	const type_t types[] =
 	{
@@ -866,12 +1005,14 @@ int main( void )
 		  bli_sdotv_wasm32_simd128,      bli_sdotv_wasm32_ref,
 		  bli_saxpyv_wasm32_simd128,     bli_saxpyv_wasm32_ref,
 		  bli_sdotxv_wasm32_simd128,     bli_sdotxv_wasm32_ref,
-		  bli_saxpyf_wasm32_simd128_8,   bli_saxpyf_wasm32_ref, { 1023, 1024, 1029 } },
+		  bli_saxpyf_wasm32_simd128_8,   bli_saxpyf_wasm32_ref,
+		  bli_sdotxf_wasm32_simd128,     bli_sdotxf_wasm32_ref, { 1023, 1024, 1029 } },
 		{ BLIS_DOUBLE, "d", sizeof( double ), DBL_EPSILON,
 		  bli_ddotv_wasm32_simd128,      bli_ddotv_wasm32_ref,
 		  bli_daxpyv_wasm32_simd128,     bli_daxpyv_wasm32_ref,
 		  bli_ddotxv_wasm32_simd128,     bli_ddotxv_wasm32_ref,
-		  bli_daxpyf_wasm32_simd128_8,   bli_daxpyf_wasm32_ref, { 511, 512, 515 } },
+		  bli_daxpyf_wasm32_simd128_8,   bli_daxpyf_wasm32_ref,
+		  bli_ddotxf_wasm32_simd128,     bli_ddotxf_wasm32_ref, { 511, 512, 515 } },
 	};
 	for ( int t = 0; t < 2; ++t )
 	{

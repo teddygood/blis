@@ -973,6 +973,11 @@ static void test_dispatch( const cntx_t* cntx )
 	       bli_cntx_get_ukr_dt( BLIS_DOUBLE, BLIS_DOTXV_KER, cntx ) ==
 	       ( void_fp )bli_ddotxv_wasm32_simd128,
 	       "real dotxv kernels are not the wasm32 simd128 kernels" );
+	CHECK( bli_cntx_get_ukr_dt( BLIS_FLOAT,  BLIS_DOTXF_KER, cntx ) ==
+	       ( void_fp )bli_sdotxf_wasm32_simd128 &&
+	       bli_cntx_get_ukr_dt( BLIS_DOUBLE, BLIS_DOTXF_KER, cntx ) ==
+	       ( void_fp )bli_ddotxf_wasm32_simd128,
+	       "real dotxf kernels are not the wasm32 simd128 kernels" );
 
 	// Every other kernel slot, and every blocksize, must match a fresh
 	// reference context for this architecture. The kernel-defs header
@@ -1002,7 +1007,7 @@ static void test_dispatch( const cntx_t* cntx )
 	{
 		if ( ( ukrs[i] == BLIS_GEMM_UKR || ukrs[i] == BLIS_DOTV_KER ||
 		       ukrs[i] == BLIS_AXPYV_KER || ukrs[i] == BLIS_DOTXV_KER ||
-		       ukrs[i] == BLIS_AXPYF_KER ) &&
+		       ukrs[i] == BLIS_AXPYF_KER || ukrs[i] == BLIS_DOTXF_KER ) &&
 		     ( dts[j] == BLIS_DOUBLE || dts[j] == BLIS_FLOAT ) ) continue;
 		if ( ( ukrs[i] == BLIS_TRSM_L_UKR || ukrs[i] == BLIS_TRSM_U_UKR ) &&
 		     ( dts[j] == BLIS_DOUBLE || dts[j] == BLIS_FLOAT ) ) continue;

@@ -52,6 +52,9 @@ DOTXV_KER_PROT( float, s, dotxv_wasm32_simd128 )
 AXPYF_KER_PROT( double, d, axpyf_wasm32_simd128_8 )
 AXPYF_KER_PROT( float, s, axpyf_wasm32_simd128_8 )
 
+DOTXF_KER_PROT( double, d, dotxf_wasm32_simd128 )
+DOTXF_KER_PROT( float, s, dotxf_wasm32_simd128 )
+
 err_t bli_sgemmsup_wasm32_simd128
      (
        const obj_t*  alpha,
