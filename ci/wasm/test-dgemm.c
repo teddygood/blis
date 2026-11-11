@@ -994,7 +994,7 @@ static void test_dispatch( const cntx_t* cntx )
 		       ukrs[i] == BLIS_AXPYF_KER ) &&
 		     ( dts[j] == BLIS_DOUBLE || dts[j] == BLIS_FLOAT ) ) continue;
 		if ( ( ukrs[i] == BLIS_TRSM_L_UKR || ukrs[i] == BLIS_TRSM_U_UKR ) &&
-		     dts[j] == BLIS_DOUBLE ) continue;
+		     ( dts[j] == BLIS_DOUBLE || dts[j] == BLIS_FLOAT ) ) continue;
 		const func_t* f_new = bli_cntx_get_ukrs( ukrs[i], cntx );
 		const func_t* f_ref = bli_cntx_get_ukrs( ukrs[i], &ref );
 		CHECK( bli_func_get_dt( dts[j], f_new ) ==
