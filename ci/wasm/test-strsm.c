@@ -46,4 +46,8 @@ typedef uint32_t test_bits;
 #define TEST_MARK 0x7fa5a5a5u
 #define TEST_NAME "test-strsm"
 #define TEST_TRSM cblas_strsm
+#define TEST_KERNEL_L bli_strsm_l_wasm32_simd128_4x8
+#define TEST_KERNEL_U bli_strsm_u_wasm32_simd128_4x8
+#define TEST_MR   4
+#define TEST_NR   8
 #include "test-trsm.h"
