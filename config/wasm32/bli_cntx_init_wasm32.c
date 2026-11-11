@@ -36,5 +36,45 @@
 
 void bli_cntx_init_wasm32( cntx_t* cntx )
 {
+	// Begin with the reference context so that every unregistered entry
+	// keeps its reference implementation.
 	bli_cntx_init_wasm32_ref( cntx );
+
+	// Replace only the double-precision real gemm microkernel. This file
+	// is compiled without the kernel-set vector flags, so registration
+	// must not depend on __wasm_simd128__.
+	bli_cntx_set_ukrs
+	(
+	  cntx,
+
+	  BLIS_GEMM_UKR, BLIS_DOUBLE, bli_dgemm_wasm32_simd128_4x4,
+
+	  BLIS_VA_END
+	);
+
+	bli_cntx_set_ukr_prefs
+	(
+	  cntx,
+
+	  BLIS_GEMM_UKR_ROW_PREF, BLIS_DOUBLE, TRUE,
+
+	  BLIS_VA_END
+	);
+
+	// The kernel is 4x4: update the double register blocksizes (default
+	// and maximum/packing sizes) to match. Other datatypes keep their
+	// reference blocksizes.
+	blksz_t mr, nr;
+	bli_blksz_init_easy( &mr, -1, 4, -1, -1 );
+	bli_blksz_init_easy( &nr, -1, 4, -1, -1 );
+
+	bli_cntx_set_blkszs
+	(
+	  cntx,
+
+	  BLIS_MR, &mr, BLIS_MR,
+	  BLIS_NR, &nr, BLIS_NR,
+
+	  BLIS_VA_END
+	);
 }
