@@ -205,8 +205,8 @@ run_wasm_test test-sgemm-asan -O1 -g -msimd128 -fsanitize=address \
 	lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
 
 # Compile-check the benchmark driver so header or API changes cannot rot it.
-log "compile-checking bench-gemm.c (dgemm and sgemm modes)"
-for flag in "" "-DBENCH_SGEMM"; do
+log "compile-checking bench-gemm.c (dgemm, sgemm, dtrsm and strsm modes)"
+for flag in "" "-DBENCH_SGEMM" "-DBENCH_DTRSM" "-DBENCH_STRSM"; do
 	emcc -fsyntax-only -O2 -msimd128 $flag -Iinclude/wasm32 ci/wasm/bench-gemm.c \
 		> "$ARTIFACTS_DIR/bench-gemm.check.log" 2>&1 \
 		|| { tail -n 40 "$ARTIFACTS_DIR/bench-gemm.check.log" >&2; die "bench-gemm.c ($flag) failed to compile"; }
