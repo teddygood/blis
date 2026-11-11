@@ -212,4 +212,11 @@ for flag in "" "-DBENCH_SGEMM"; do
 		|| { tail -n 40 "$ARTIFACTS_DIR/bench-gemm.check.log" >&2; die "bench-gemm.c ($flag) failed to compile"; }
 done
 
+# Contract tests for the trsm microkernels of both real precisions and the
+# public cblas_?trsm calls that reach them through gemmtrsm.
+run_wasm_test test-dtrsm -O2 -msimd128 -Iinclude/wasm32 \
+	ci/wasm/test-dtrsm.c lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
+run_wasm_test test-strsm -O2 -msimd128 -Iinclude/wasm32 \
+	ci/wasm/test-strsm.c lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
+
 log "WASM testsuite passed; artifacts in $ARTIFACTS_DIR"
