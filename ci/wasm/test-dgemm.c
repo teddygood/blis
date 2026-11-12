@@ -910,6 +910,11 @@ static void test_dispatch( const cntx_t* cntx )
 	       "double gemm ukr is not the wasm32 simd128 kernel" );
 	CHECK( bli_cntx_get_ukr_prefs_dt( BLIS_DOUBLE, BLIS_GEMM_UKR_ROW_PREF, cntx ),
 	       "double gemm ukr row preference not set" );
+	CHECK( bli_cntx_get_ukr_dt( BLIS_DOUBLE, BLIS_TRSM_L_UKR, cntx ) ==
+	       ( void_fp )bli_dtrsm_l_wasm32_simd128_4x4 &&
+	       bli_cntx_get_ukr_dt( BLIS_DOUBLE, BLIS_TRSM_U_UKR, cntx ) ==
+	       ( void_fp )bli_dtrsm_u_wasm32_simd128_4x4,
+	       "double trsm ukrs are not the wasm32 simd128 kernels" );
 
 	CHECK( bli_cntx_get_blksz_def_dt( BLIS_DOUBLE, BLIS_MR, cntx ) == 4 &&
 	       bli_cntx_get_blksz_max_dt( BLIS_DOUBLE, BLIS_MR, cntx ) == 4,
@@ -987,6 +992,8 @@ static void test_dispatch( const cntx_t* cntx )
 	{
 		if ( ( ukrs[i] == BLIS_GEMM_UKR || ukrs[i] == BLIS_DOTV_KER ||
 		       ukrs[i] == BLIS_AXPYF_KER ) &&
+		     ( dts[j] == BLIS_DOUBLE || dts[j] == BLIS_FLOAT ) ) continue;
+		if ( ( ukrs[i] == BLIS_TRSM_L_UKR || ukrs[i] == BLIS_TRSM_U_UKR ) &&
 		     ( dts[j] == BLIS_DOUBLE || dts[j] == BLIS_FLOAT ) ) continue;
 		const func_t* f_new = bli_cntx_get_ukrs( ukrs[i], cntx );
 		const func_t* f_ref = bli_cntx_get_ukrs( ukrs[i], &ref );

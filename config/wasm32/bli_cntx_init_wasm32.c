@@ -54,6 +54,15 @@ void bli_cntx_init_wasm32( cntx_t* cntx )
 	  BLIS_AXPYF_KER, BLIS_FLOAT,  bli_saxpyf_wasm32_simd128_8,
 	  BLIS_AXPYF_KER, BLIS_DOUBLE, bli_daxpyf_wasm32_simd128_8,
 
+	  // The reference gemmtrsm microkernel pairs these with the gemm
+	  // microkernels above; each solves the same tile as the gemm kernel
+	  // of its datatype (4x8 single, 4x4 double), so the two must change
+	  // together.
+	  BLIS_TRSM_L_UKR, BLIS_FLOAT,  bli_strsm_l_wasm32_simd128_4x8,
+	  BLIS_TRSM_U_UKR, BLIS_FLOAT,  bli_strsm_u_wasm32_simd128_4x8,
+	  BLIS_TRSM_L_UKR, BLIS_DOUBLE, bli_dtrsm_l_wasm32_simd128_4x4,
+	  BLIS_TRSM_U_UKR, BLIS_DOUBLE, bli_dtrsm_u_wasm32_simd128_4x4,
+
 	  BLIS_VA_END
 	);
 
