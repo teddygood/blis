@@ -35,6 +35,12 @@
 GEMM_UKR_PROT( double, d, gemm_wasm32_simd128_4x4 )
 GEMM_UKR_PROT( float, s, gemm_wasm32_simd128_4x8 )
 
+DOTV_KER_PROT( double, d, dotv_wasm32_simd128 )
+DOTV_KER_PROT( float, s, dotv_wasm32_simd128 )
+
+AXPYF_KER_PROT( double, d, axpyf_wasm32_simd128_8 )
+AXPYF_KER_PROT( float, s, axpyf_wasm32_simd128_8 )
+
 err_t bli_sgemmsup_wasm32_simd128
      (
        const obj_t*  alpha,
