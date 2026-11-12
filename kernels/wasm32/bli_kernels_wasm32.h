@@ -34,3 +34,25 @@
 
 GEMM_UKR_PROT( double, d, gemm_wasm32_simd128_4x4 )
 GEMM_UKR_PROT( float, s, gemm_wasm32_simd128_4x8 )
+
+err_t bli_sgemmsup_wasm32_simd128
+     (
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+       rntm_t*       rntm
+     );
+
+err_t bli_gemmtsup_wasm32
+     (
+       const obj_t*  alpha,
+       const obj_t*  a,
+       const obj_t*  b,
+       const obj_t*  beta,
+       const obj_t*  c,
+       const cntx_t* cntx,
+       rntm_t*       rntm
+     );

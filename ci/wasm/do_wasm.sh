@@ -196,4 +196,21 @@ run_wasm_test test-sgemm-asan -O1 -g -msimd128 -fsanitize=address \
 	kernels/wasm32/3/bli_sgemm_wasm32_simd128_4x8.c \
 	lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
 
+# Contract test for the small single-precision GEMM handler: plain, under
+# AddressSanitizer with the handler source instrumented, and with a 16 KiB
+# stack. The handler keeps its 36 KiB of packing buffers off the stack, and
+# STACK_OVERFLOW_CHECK=2 aborts the run if any frame outgrows the stack. The
+# small-stack build (-DTEST_SMALL_STACK) skips the public calls that BLIS
+# computes on its conventional path, which needs more than 16 KiB of stack
+# for some of the fallback cases.
+run_wasm_test test-small-sup -O2 -msimd128 -Iinclude/wasm32 \
+	ci/wasm/test-small-sup.c lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
+run_wasm_test test-small-sup-asan -O1 -g -msimd128 -fsanitize=address \
+	-Iinclude/wasm32 ci/wasm/test-small-sup.c \
+	kernels/wasm32/3/bli_sgemmsup_wasm32_simd128.c \
+	lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
+run_wasm_test test-small-sup-stack16k -O2 -msimd128 -DTEST_SMALL_STACK \
+	-Iinclude/wasm32 ci/wasm/test-small-sup.c lib/wasm32/libblis.a -lm \
+	-sALLOW_MEMORY_GROWTH=1 -sSTACK_SIZE=16384 -sSTACK_OVERFLOW_CHECK=2
+
 log "WASM testsuite passed; artifacts in $ARTIFACTS_DIR"
