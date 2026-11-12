@@ -86,6 +86,19 @@ static bli_pthread_switch_t memsys_g_state = BLIS_PTHREAD_SWITCH_INIT;
 
 int bli_init_apis( void )
 {
+	// Every BLAS routine and most BLIS API functions reach this function on
+	// entry (through bli_init_auto() or bli_init_once()), so return early
+	// once all sub-APIs are initialized. bli_pthread_switch_on() begins with
+	// the same unlocked status check, so this skips only calls that would do
+	// nothing. A partial initialization, or one undone by bli_finalize(),
+	// falls through to the calls below.
+	if ( gks_g_state.status    == 1 &&
+	     ind_l_state.status    == 1 &&
+	     thread_g_state.status == 1 &&
+	     rntm_l_state.status   == 1 &&
+	     memsys_g_state.status == 1 )
+		return 0;
+
 	// Initialize various sub-APIs.
 	bli_pthread_switch_on( &gks_g_state,    bli_gks_init );
 	bli_pthread_switch_on( &ind_l_state,    bli_ind_init );
