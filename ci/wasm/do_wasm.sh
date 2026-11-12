@@ -213,15 +213,19 @@ run_wasm_test test-small-sup-stack16k -O2 -msimd128 -DTEST_SMALL_STACK \
 	-Iinclude/wasm32 ci/wasm/test-small-sup.c lib/wasm32/libblis.a -lm \
 	-sALLOW_MEMORY_GROWTH=1 -sSTACK_SIZE=16384 -sSTACK_OVERFLOW_CHECK=2
 
-# Contract test for the real dotv and axpyf kernels against the reference
-# kernels, plain and under AddressSanitizer with both kernel sources
-# instrumented.
+# Contract test for the real level-1v and level-1f kernels against the
+# reference kernels, plain and under AddressSanitizer with the kernel
+# sources instrumented.
 run_wasm_test test-l1f -O2 -msimd128 -Iinclude/wasm32 \
 	ci/wasm/test-l1f.c lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
 run_wasm_test test-l1f-asan -O1 -g -msimd128 -fsanitize=address \
 	-Iinclude/wasm32 ci/wasm/test-l1f.c \
 	kernels/wasm32/1/bli_dotv_wasm32_simd128.c \
+	kernels/wasm32/1/bli_axpyv_wasm32_simd128.c \
+	kernels/wasm32/1/bli_dotxv_wasm32_simd128.c \
 	kernels/wasm32/1f/bli_axpyf_wasm32_simd128.c \
+	kernels/wasm32/1f/bli_dotxf_wasm32_simd128.c \
+	kernels/wasm32/1f/bli_dotxaxpyf_wasm32_simd128.c \
 	lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
 
 # Contract tests for the trsm microkernels of both real precisions and the
