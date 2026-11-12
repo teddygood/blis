@@ -39,9 +39,9 @@ typedef float test_real;
 #define TEST_DT BLIS_FLOAT
 #define TEST_COMPLEX 0
 #define TEST_MR 4
-#define TEST_NR 4
+#define TEST_NR 8
 #define TEST_EPS FLT_EPSILON
-#define TEST_KERNEL bli_sgemm_wasm32_simd128_4x4
+#define TEST_KERNEL bli_sgemm_wasm32_simd128_4x8
 #define TEST_NAME "test-sgemm"
 #define TEST_CALL cblas_sgemm
 #define TEST_EXTRA test_cgemm_1m

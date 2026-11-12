@@ -45,7 +45,7 @@ void bli_cntx_init_wasm32( cntx_t* cntx )
 	(
 	  cntx,
 
-	  BLIS_GEMM_UKR, BLIS_FLOAT,  bli_sgemm_wasm32_simd128_4x4,
+	  BLIS_GEMM_UKR, BLIS_FLOAT,  bli_sgemm_wasm32_simd128_4x8,
 	  BLIS_GEMM_UKR, BLIS_DOUBLE, bli_dgemm_wasm32_simd128_4x4,
 
 	  BLIS_VA_END
@@ -61,10 +61,11 @@ void bli_cntx_init_wasm32( cntx_t* cntx )
 	  BLIS_VA_END
 	);
 
-	// Match the register and packing sizes to the 4x4 kernels.
+	// Match the register and packing sizes to the 4x8 single and 4x4 double
+	// kernels.
 	blksz_t mr, nr;
 	bli_blksz_init_easy( &mr, 4, 4, -1, -1 );
-	bli_blksz_init_easy( &nr, 4, 4, -1, -1 );
+	bli_blksz_init_easy( &nr, 8, 4, -1, -1 );
 
 	bli_cntx_set_blkszs
 	(
