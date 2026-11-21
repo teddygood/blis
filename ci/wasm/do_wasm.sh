@@ -244,4 +244,13 @@ run_wasm_test test-l1f-asan -O1 -g -msimd128 -fsanitize=address \
 	kernels/wasm32/1f/bli_dotxaxpyf_wasm32_simd128.c \
 	lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
 
+# Compile-check bench-l2.c across all operation modes so header changes cannot rot it.
+log "compile-checking bench-l2.c (all 7 level-2 modes)"
+for flag in "" "-DBENCH_GEMV_N_ROWX" "-DBENCH_GEMV_T" "-DBENCH_GEMV_T_ROWX" \
+            "-DBENCH_GER" "-DBENCH_SYMV" "-DBENCH_NRM2"; do
+	emcc -fsyntax-only -O2 -msimd128 $flag -Iinclude/wasm32 ci/wasm/bench-l2.c \
+		> "$ARTIFACTS_DIR/bench-l2.check.log" 2>&1 \
+		|| { tail -n 40 "$ARTIFACTS_DIR/bench-l2.check.log" >&2; die "bench-l2.c ($flag) failed to compile"; }
+done
+
 log "WASM testsuite passed; artifacts in $ARTIFACTS_DIR"
