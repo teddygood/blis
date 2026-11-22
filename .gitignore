@@ -24,6 +24,9 @@
 *.pexe
 *.nexe
 *.js
+# WebAssembly binaries and preload bundles emitted by emcc alongside *.x
+*.wasm
+*.data
 # link map files
 *.map
 
@@ -46,6 +49,9 @@ include/*/*.h
 # BLIS testsuite output file
 output.testsuite
 output.testsuite.*
+
+# WASM CI artifacts (ci/wasm/do_wasm.sh)
+wasm-artifacts/
 
 # BLAS test output files
 out.*
