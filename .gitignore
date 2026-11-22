@@ -59,6 +59,9 @@ wasm-deps/
 wasm-prefix/
 ci/wasm/__pycache__/
 
+# WASM SciPy integration scratch dir (ci/wasm/do_scipy.sh)
+wasm-scipy-work/
+
 # BLAS test output files
 out.*
 
