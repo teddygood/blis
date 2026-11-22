@@ -196,10 +196,20 @@ run_wasm_test test-dgemm-asan -O1 -g -msimd128 -fsanitize=address \
 	kernels/wasm32/3/bli_dgemm_wasm32_simd128_4x4.c \
 	lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
 
+# Single-precision contract test, plain and under AddressSanitizer.
+run_wasm_test test-sgemm -O2 -msimd128 -Iinclude/wasm32 \
+	ci/wasm/test-sgemm.c lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
+run_wasm_test test-sgemm-asan -O1 -g -msimd128 -fsanitize=address \
+	-Iinclude/wasm32 ci/wasm/test-sgemm.c \
+	kernels/wasm32/3/bli_sgemm_wasm32_simd128_4x8.c \
+	lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1
+
 # Compile-check the benchmark driver so header or API changes cannot rot it.
-log "compile-checking bench-gemm.c"
-emcc -fsyntax-only -O2 -msimd128 -Iinclude/wasm32 ci/wasm/bench-gemm.c \
-	> "$ARTIFACTS_DIR/bench-gemm.check.log" 2>&1 \
-	|| { tail -n 40 "$ARTIFACTS_DIR/bench-gemm.check.log" >&2; die "bench-gemm.c failed to compile"; }
+log "compile-checking bench-gemm.c (dgemm and sgemm modes)"
+for flag in "" "-DBENCH_SGEMM"; do
+	emcc -fsyntax-only -O2 -msimd128 $flag -Iinclude/wasm32 ci/wasm/bench-gemm.c \
+		> "$ARTIFACTS_DIR/bench-gemm.check.log" 2>&1 \
+		|| { tail -n 40 "$ARTIFACTS_DIR/bench-gemm.check.log" >&2; die "bench-gemm.c ($flag) failed to compile"; }
+done
 
 log "WASM testsuite passed; artifacts in $ARTIFACTS_DIR"

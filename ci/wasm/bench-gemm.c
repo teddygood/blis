@@ -42,6 +42,8 @@
 //   emcc -O2 -msimd128 -Iinclude/wasm32 ci/wasm/bench-gemm.c \
 //       lib/wasm32/libblis.a -lm -sALLOW_MEMORY_GROWTH=1 -o bench-dgemm.js
 //
+// DGEMM is the default; add -DBENCH_SGEMM for SGEMM.
+//
 // Usage: node bench-dgemm.js SIZE REPS
 //
 // REPS = 0 calibrates and prints "cal,<ms per call>". Otherwise the program
@@ -56,12 +58,21 @@
 #include "blis.h"
 #include "cblas.h"
 
+#if defined( BENCH_SGEMM )
+typedef float scalar_t;
+#define BENCH_DT   BLIS_FLOAT
+#define BENCH_NAME "sgemm"
+#define GEMM( a, b, c ) \
+	cblas_sgemm( CblasColMajor, CblasNoTrans, CblasNoTrans, \
+	             n, n, n, 1.0f, a, n, b, n, 0.0f, c, n )
+#else
 typedef double scalar_t;
 #define BENCH_DT   BLIS_DOUBLE
 #define BENCH_NAME "dgemm"
 #define GEMM( a, b, c ) \
 	cblas_dgemm( CblasColMajor, CblasNoTrans, CblasNoTrans, \
 	             n, n, n, 1.0, a, n, b, n, 0.0, c, n )
+#endif
 
 int main( int argc, char** argv )
 {
